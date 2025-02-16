@@ -12,23 +12,31 @@ export default function Home() {
   const [showInfo, setShowInfo] = useState(false);
   const [showTopMatches, setShowTopMatches] = useState(false);
   
-  const { walletInfo, generatePrivateKey } = useWallet();
+  const { walletInfo, generatePrivateKey, attempts, speedRun, isRunning, continuousRun, stopRunning } = useWallet();
   const { copyingId, copyNotification, copyToClipboard } = useCopyToClipboard();
   
-  const { handleKeyPress } = useKeyboardShortcuts({
+  const { handleKeyPress, handleKeyUp } = useKeyboardShortcuts({
     showInfo,
     setShowInfo,
     showTopMatches,
     setShowTopMatches,
     walletInfo,
     generatePrivateKey,
-    copyToClipboard
+    copyToClipboard,
+    speedRun,
+    isRunning,
+    continuousRun,
+    stopRunning
   });
 
   useEffect(() => {
     window.addEventListener('keydown', handleKeyPress);
-    return () => window.removeEventListener('keydown', handleKeyPress);
-  }, [handleKeyPress]);
+    window.addEventListener('keyup', handleKeyUp);
+    return () => {
+      window.removeEventListener('keydown', handleKeyPress);
+      window.removeEventListener('keyup', handleKeyUp);
+    };
+  }, [handleKeyPress, handleKeyUp]);
 
   return (
     <div className="min-h-screen bg-black text-green-500 font-mono p-4">
@@ -40,6 +48,8 @@ export default function Home() {
               generatePrivateKey={generatePrivateKey}
               copyToClipboard={copyToClipboard}
               copyingId={copyingId}
+              attempts={attempts}
+              isRunning={isRunning}
             />
           ) : showInfo ? (
             <InfoSection />

@@ -7,9 +7,12 @@ interface MainContentProps {
   generatePrivateKey: () => void;
   copyToClipboard: (text: string, id: string) => void;
   copyingId: string | null;
+  attempts: number;
+  isRunning: boolean;
+  hasWon: boolean;
 }
 
-export function MainContent({ walletInfo, generatePrivateKey, copyToClipboard, copyingId }: MainContentProps) {
+export function MainContent({ walletInfo, generatePrivateKey, copyToClipboard, copyingId, attempts, isRunning, hasWon }: MainContentProps) {
   return (
     <>
       <div className="text-center w-full">
@@ -17,8 +20,19 @@ export function MainContent({ walletInfo, generatePrivateKey, copyToClipboard, c
           Zero Quest
         </h1>
         <p className="text-sm text-green-600">
-          {'>'} INITIALIZING ZERO ADDRESS HACK_
+          {hasWon ? 
+            '> MISSION ACCOMPLISHED! 🎉' : 
+            '> INITIALIZING ZERO ADDRESS HACK_'
+          }
         </p>
+        <p className="text-sm text-green-600/50 mt-1">
+          {'>'} ATTEMPTS: {attempts}_{isRunning ? ' [RUNNING]' : ''}
+        </p>
+        {!hasWon && (
+          <p className="text-xs text-green-600/30 mt-1">
+            {'>'} HOLD [G] TO RUN
+          </p>
+        )}
       </div>
 
       <div className="flex gap-4 items-center flex-col sm:flex-row">
