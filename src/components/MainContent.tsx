@@ -1,5 +1,6 @@
 import { FaKey, FaCopy, FaMoneyBillWave } from "react-icons/fa";
 import { WalletInfo } from "@/types";
+import { VAULT_URL } from "@/utils/constants";
 
 interface MainContentProps {
   walletInfo: WalletInfo | null;
@@ -29,7 +30,7 @@ export function MainContent({ walletInfo, generatePrivateKey, copyToClipboard, c
           GENERATE_KEY.exe [G]
         </button>
         <a
-          href="https://etherscan.io/address/0x0000000000000000000000000000000000000000#multichain-portfolio"
+          href={VAULT_URL}
           target="_blank"
           rel="noopener noreferrer"
           className="px-6 py-2 bg-green-500/10 border border-green-500/50 text-green-400 hover:bg-green-500/20 hover:border-green-400 transition-all flex items-center gap-2"

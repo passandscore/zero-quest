@@ -1,3 +1,5 @@
+import { useEffect, useState } from 'react';
+
 interface TerminalFooterProps {
   showInfo: boolean;
   showTopMatches: boolean;
@@ -11,11 +13,17 @@ export function TerminalFooter({
   setShowInfo,
   setShowTopMatches
 }: TerminalFooterProps) {
+  const [lastLogin, setLastLogin] = useState('');
+
+  useEffect(() => {
+    setLastLogin(new Date().toLocaleString());
+  }, []);
+
   return (
     <footer className="fixed bottom-0 left-0 right-0 bg-black border-t border-green-500/20">
       <div className="max-w-4xl mx-auto">
         <div className="px-4 py-1 text-green-500/40 text-sm">
-          <span>Last login: {new Date().toLocaleString()}</span>
+          <span>Last login: {lastLogin}</span>
         </div>
         
         <div className="px-4 py-2 flex items-center text-sm bg-black">

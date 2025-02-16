@@ -1,5 +1,6 @@
 import { useCallback } from "react";
 import { WalletInfo } from "@/types";
+import { VAULT_URL } from "@/utils/constants";
 
 interface KeyboardShortcutsProps {
   showInfo: boolean;
@@ -21,11 +22,16 @@ export function useKeyboardShortcuts({
   copyToClipboard,
 }: KeyboardShortcutsProps) {
   const handleKeyPress = useCallback((event: KeyboardEvent) => {
-    if (event.key === 'g' && !showInfo && !showTopMatches) {
-      generatePrivateKey();
-    }
-    if (event.key === 'c' && walletInfo && !showInfo && !showTopMatches) {
-      copyToClipboard(walletInfo.privateKey, walletInfo.address);
+    if (!showInfo && !showTopMatches) {
+      if (event.key === 'g') {
+        generatePrivateKey();
+      }
+      if (event.key === 'a') {
+        window.open(VAULT_URL, '_blank');
+      }
+      if (event.key === 'c' && walletInfo) {
+        copyToClipboard(walletInfo.privateKey, walletInfo.address);
+      }
     }
     if (event.key === 'h' && !showInfo && !showTopMatches) {
       setShowInfo(true);
