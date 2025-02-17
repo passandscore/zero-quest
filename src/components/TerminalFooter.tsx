@@ -4,11 +4,13 @@ import { VAULT_URL } from '@/utils/constants';
 interface TerminalFooterProps {
   setShowCommands: (show: boolean) => void;
   setShowInfo: (show: boolean) => void;
+  setShowShare: (show: boolean) => void;
 }
 
 export function TerminalFooter({ 
   setShowCommands,
-  setShowInfo 
+  setShowInfo,
+  setShowShare
 }: TerminalFooterProps) {
   const [lastLogin, setLastLogin] = useState('');
 
@@ -37,6 +39,11 @@ export function TerminalFooter({
                 onClick={() => setShowInfo(true)}
               >
                 HELP.txt [H]
+              </button>
+              <button
+                onClick={() => setShowShare(true)}
+              >
+                SHARE.txt [CTRL+S]
               </button>
             </div>
           </div>

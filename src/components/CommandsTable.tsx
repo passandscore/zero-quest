@@ -13,6 +13,7 @@ export function CommandsTable({ show, onClose }: CommandsTableProps) {
     { key: '0-9', description: 'Copy private key from top matches' },
     { key: 'CTRL+/', description: 'Toggle commands' },
     { key: 'ESC', description: 'Close modals' },
+    { key: 'CTRL+S', description: 'Share your progress' },
   ];
 
   return (

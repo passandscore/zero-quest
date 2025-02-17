@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { MainContent } from "@/components/MainContent";
 import { TerminalFooter } from "@/components/TerminalFooter";
 import { useKeyboardShortcuts } from "@/hooks/useKeyboardShortcuts";
@@ -8,10 +8,12 @@ import { useCopyToClipboard } from "@/hooks/useCopyToClipboard";
 import { getTopMatches } from "@/utils/storage";
 import { HelpModal } from "@/components/HelpModal";
 import { TabAnimation } from '@/components/TabAnimation';
+import { ShareModal } from '@/components/ShareModal';
 
 export default function Home() {
   const [showInfo, setShowInfo] = useState(false);
   const [showCommands, setShowCommands] = useState(false);
+  const [showShare, setShowShare] = useState(false);
   
   const { 
     walletInfo, 
@@ -27,6 +29,12 @@ export default function Home() {
 
   const { copyingId, copyToClipboard } = useCopyToClipboard();
   
+  // Get top match for sharing
+  const topMatch = useMemo(() => {
+    const matches = getTopMatches();
+    return matches.length > 0 ? matches[0] : null;
+  }, []);
+
   const { handleKeyPress } = useKeyboardShortcuts({
     showInfo,
     setShowInfo,
@@ -39,7 +47,9 @@ export default function Home() {
     showCommands,
     setShowCommands,
     reset,
-    getTopMatches
+    getTopMatches,
+    showShare,
+    setShowShare,
   });
 
   useEffect(() => {
@@ -81,6 +91,14 @@ export default function Home() {
       <TerminalFooter 
         setShowCommands={setShowCommands}
         setShowInfo={setShowInfo}
+        setShowShare={setShowShare}
+      />
+      <ShareModal 
+        show={showShare}
+        onClose={() => setShowShare(false)}
+        topMatch={topMatch}
+        runtime={runtime}
+        attempts={attempts}
       />
     </div>
   );

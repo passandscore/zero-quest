@@ -15,6 +15,8 @@ interface KeyboardShortcutsProps {
   setShowCommands: (show: boolean) => void;
   reset: () => void;
   getTopMatches: () => WalletInfo[];
+  showShare: boolean;
+  setShowShare: (show: boolean) => void;
 }
 
 export function useKeyboardShortcuts({
@@ -29,7 +31,9 @@ export function useKeyboardShortcuts({
   showCommands,
   setShowCommands,
   reset,
-  getTopMatches
+  getTopMatches,
+  showShare,
+  setShowShare
 }: KeyboardShortcutsProps) {
   const handleKeyPress = useCallback((event: KeyboardEvent) => {
     // H key for help/info
@@ -96,6 +100,13 @@ export function useKeyboardShortcuts({
         }
       }
     }
+
+    // Add share command (Ctrl+S)
+    if (event.key.toLowerCase() === 's' && (event.ctrlKey || event.metaKey)) {
+      event.preventDefault();
+      setShowShare(prev => !prev);
+      return;
+    }
   }, [
     isRunning, 
     startRunning, 
@@ -105,7 +116,8 @@ export function useKeyboardShortcuts({
     reset, 
     copyToClipboard,
     walletInfo,
-    getTopMatches
+    getTopMatches,
+    setShowShare
   ]);
 
   return { handleKeyPress };
