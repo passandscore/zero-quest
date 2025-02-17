@@ -1,3 +1,5 @@
+"use client";
+
 import { WalletInfo } from "@/types";
 import { useState, useEffect } from "react";
 import { getTopMatches } from "@/utils/storage";
@@ -90,10 +92,23 @@ export function MainContent({
   }, [reset]);
 
   const formatRuntime = (seconds: number) => {
-    const hours = Math.floor(seconds / 3600);
+    const days = Math.floor(seconds / 86400);
+    const hours = Math.floor((seconds % 86400) / 3600);
     const minutes = Math.floor((seconds % 3600) / 60);
     const secs = seconds % 60;
-    return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+    
+    let result = '';
+    if (days > 0) result += `${days.toString().padStart(2, '0')}:`;
+    if (days > 0 || hours > 0) result += `${hours.toString().padStart(2, '0')}:`;
+    if (days > 0 || hours > 0 || minutes > 0) result += `${minutes.toString().padStart(2, '0')}:`;
+    result += `${secs.toString().padStart(2, '0')}`;
+    
+    return result;
+  };
+
+  // Helper function for consistent number formatting
+  const formatNumber = (num: number) => {
+    return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
   };
 
   if (isLoading) {
@@ -131,23 +146,23 @@ export function MainContent({
             </div>
           </div>
         </h1>
-        <p className="text-sm text-[#33ff00] drop-shadow-[0_0_3px_rgba(51,255,0,0.3)]">
+        <p className="text-base text-[#33ff00] drop-shadow-[0_0_3px_rgba(51,255,0,0.3)]">
           {hasWon ? 
             '> MISSION ACCOMPLISHED! 🎉' : 
             '> INITIALIZING ZERO ADDRESS HACK_'
           }
         </p>
-        <p className="text-sm text-[#33ff00] drop-shadow-[0_0_3px_rgba(51,255,0,0.3)]/50 mt-1">
-          {'>'} ATTEMPTS: {attempts}_{isRunning ? ' [RUNNING]' : ''}
+        <p className="text-base text-[#33ff00] drop-shadow-[0_0_3px_rgba(51,255,0,0.3)]/50 mt-1">
+          {'>'} ATTEMPTS: {formatNumber(attempts)}_{isRunning ? ' [RUNNING]' : ''}
         </p>
-        <p className="text-sm text-[#33ff00] drop-shadow-[0_0_3px_rgba(51,255,0,0.3)]/50 mt-1">
+        <p className="text-base text-[#33ff00] drop-shadow-[0_0_3px_rgba(51,255,0,0.3)]/50 mt-1">
           {'>'} RUNTIME: {formatRuntime(runtime)}_
         </p>
       </div>
 
       <div className="grid grid-rows-[auto_1fr] gap-4 w-full">
         {/* Terminal Output Panel */}
-        <div className="w-full p-2 bg-[#001100] border border-[#33ff00]/20 shadow-[inset_0_0_10px_rgba(51,255,0,0.1)] font-mono text-[#33ff00]">
+        <div className="w-full p-2 bg-[#001100] border border-[#33ff00]/20 shadow-[inset_0_0_10px_rgba(51,255,0,0.1)] font-mono text-base">
           <div className="flex flex-col gap-1">
             {walletInfo && (
               <>
@@ -209,4 +224,4 @@ export function MainContent({
       </div>
     </>
   );
-} 
+}

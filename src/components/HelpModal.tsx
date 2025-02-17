@@ -10,7 +10,7 @@ export function HelpModal({ show, onClose }: HelpModalProps) {
 
   return (
     <Modal isOpen={show} onClose={onClose}>
-      <div className="p-4 font-mono text-sm">
+      <div className="p-4 font-mono text-base">
         <div className="text-[#33ff00] mb-4">
           {'>'} cat HELP.txt
         </div>

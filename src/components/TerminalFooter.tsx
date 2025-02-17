@@ -19,7 +19,7 @@ export function TerminalFooter({
   return (
     <footer className="fixed bottom-0 left-0 right-0 bg-black border-t border-[#33ff00] h-14">
       <div className="px-20">
-        <div className="py-2 flex items-center justify-between text-sm">
+        <div className="py-2 flex items-center justify-between text-base">
           <div className="flex items-center justify-center w-full xl:w-auto">
             <span className="text-[#33ff00] mr-2 hidden xl:inline">root@zeroquest:~$ ls -la</span>
             <div className="flex gap-8 text-[#33ff00]">
