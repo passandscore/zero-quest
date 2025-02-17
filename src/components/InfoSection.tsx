@@ -1,6 +1,6 @@
 export function InfoSection() {
   return (
-    <div className="w-full p-6 bg-green-500/5 border border-green-500/20">
+    <div className="w-full p-6 bg-green-500/5 border border-[#33ff00]">
       <div className="space-y-8">
         <div>
           <h3 className="text-lg mb-2">{'>'} MISSION_BRIEFING.txt</h3>

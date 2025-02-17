@@ -5,64 +5,108 @@ import { VAULT_URL } from "@/utils/constants";
 interface KeyboardShortcutsProps {
   showInfo: boolean;
   setShowInfo: (show: boolean) => void;
-  showTopMatches: boolean;
-  setShowTopMatches: (show: boolean) => void;
   walletInfo: WalletInfo | null;
   generatePrivateKey: () => void;
   copyToClipboard: (text: string, id: string) => void;
-  speedRun: (count: number) => void;
   isRunning: boolean;
-  continuousRun: () => void;
+  startRunning: () => void;
   stopRunning: () => void;
+  showCommands: boolean;
+  setShowCommands: (show: boolean) => void;
+  reset: () => void;
+  getTopMatches: () => WalletInfo[];
 }
 
 export function useKeyboardShortcuts({
   showInfo,
   setShowInfo,
-  showTopMatches,
-  setShowTopMatches,
   walletInfo,
   generatePrivateKey,
   copyToClipboard,
-  speedRun,
   isRunning,
-  continuousRun,
-  stopRunning
+  startRunning,
+  stopRunning,
+  showCommands,
+  setShowCommands,
+  reset,
+  getTopMatches
 }: KeyboardShortcutsProps) {
   const handleKeyPress = useCallback((event: KeyboardEvent) => {
-    if (!showInfo && !showTopMatches && !isRunning) {
-      if (event.key === 'g' && !event.repeat) {
-        continuousRun();
+    // H key for help/info
+    if (event.key.toLowerCase() === 'h') {
+      event.preventDefault(); // Prevent default behavior
+      setShowInfo(prev => !prev); // Toggle the showInfo state
+      return;
+    }
+
+    // Space bar to toggle running
+    if (event.code === 'Space') {
+      event.preventDefault();
+      if (isRunning) {
+        stopRunning();
+      } else {
+        startRunning();
       }
-      if ((event.ctrlKey || event.metaKey) && /^[1-9]$/.test(event.key)) {
-        event.preventDefault(); // Prevent browser shortcuts
-        const multiplier = parseInt(event.key);
-        speedRun(multiplier * 100);
+      return;
+    }
+
+    // Handle ESC to close modals
+    if (event.key === 'Escape') {
+      setShowCommands(false);
+      setShowInfo(false);
+      return;
+    }
+
+    // Handle commands toggle
+    if (event.key === '/' && (event.ctrlKey || event.metaKey)) {
+      event.preventDefault();
+      setShowCommands(prev => !prev);
+      return;
+    }
+
+    if (!showInfo) {
+      // Reset with Ctrl+R
+      if (event.key.toLowerCase() === 'r' && (event.ctrlKey || event.metaKey)) {
+        event.preventDefault();
+        reset();
       }
-      if (event.key === 'a') {
-        window.open(VAULT_URL, '_blank');
-      }
-      if (event.key === 'c' && walletInfo) {
+
+      // Copy current key with Ctrl+C
+      if (event.key.toLowerCase() === 'c' && (event.ctrlKey || event.metaKey) && walletInfo) {
+        event.preventDefault();
         copyToClipboard(walletInfo.privateKey, walletInfo.address);
       }
-    }
-    if (event.key === 'h' && !showInfo && !showTopMatches) {
-      setShowInfo(true);
-    }
-    if (event.key === 't' && !showInfo && !showTopMatches) {
-      setShowTopMatches(true);
-    }
-    if (event.key === 'Escape' || event.key === 'Enter') {
-      setShowInfo(false);
-      setShowTopMatches(false);
-    }
-  }, [showInfo, showTopMatches, walletInfo, generatePrivateKey, copyToClipboard, setShowInfo, setShowTopMatches, speedRun, isRunning, continuousRun]);
 
-  const handleKeyUp = useCallback((event: KeyboardEvent) => {
-    if (event.key === 'g') {
-      stopRunning();
-    }
-  }, [stopRunning]);
+      // Copy selected match with Ctrl+K
+      if (event.key.toLowerCase() === 'k' && (event.ctrlKey || event.metaKey)) {
+        event.preventDefault();
+        // Implementation for copying selected match
+      }
 
-  return { handleKeyPress, handleKeyUp };
+      if (event.key.toLowerCase() === 'v') {
+        window.open(VAULT_URL, '_blank');
+      }
+
+      // Copy from top matches with number keys
+      const num = parseInt(event.key);
+      if (!isNaN(num) && num >= 0 && num <= 9) {
+        const matches = getTopMatches();
+        if (matches[num]) {
+          copyToClipboard(matches[num].privateKey, matches[num].address);
+        }
+      }
+    }
+  }, [
+    isRunning, 
+    startRunning, 
+    stopRunning, 
+    setShowInfo,  // Make sure setShowInfo is in dependencies
+    setShowCommands, 
+    reset, 
+    copyToClipboard,
+    walletInfo,
+    getTopMatches
+  ]);
+
+  return { handleKeyPress };
 } 

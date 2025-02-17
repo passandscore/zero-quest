@@ -1,4 +1,6 @@
-import { useState, useCallback, useRef } from "react";
+"use client";
+
+import { useState, useCallback, useRef, useEffect } from "react";
 import { randomBytes } from "crypto";
 import { Wallet } from "ethers";
 import { calculateZeroMatch, getTestAddress } from "@/utils/calculations";
@@ -14,12 +16,47 @@ export function useWallet() {
   const [isRunning, setIsRunning] = useState(false);
   const [hasWon, setHasWon] = useState(false);
   const isRunningRef = useRef(false);
+  const [runtime, setRuntime] = useState(0);
+  const runtimeInterval = useRef<NodeJS.Timeout | undefined>(undefined);
+
+  useEffect(() => {
+    if (isRunningRef.current && !hasWon) {
+      runtimeInterval.current = setInterval(() => {
+        setRuntime(prev => prev + 1);
+      }, 1000);
+    }
+
+    return () => {
+      if (runtimeInterval.current) {
+        clearInterval(runtimeInterval.current);
+        runtimeInterval.current = undefined;
+      }
+    };
+  }, [isRunningRef.current, hasWon]);
+
+  const reset = useCallback(() => {
+    setWalletInfo(null);
+    setAttempts(0);
+    setIsRunning(false);
+    setHasWon(false);
+    isRunningRef.current = false;
+    localStorage.removeItem('zero_quest_top_matches');
+    if (runtimeInterval.current) {
+      clearInterval(runtimeInterval.current);
+      runtimeInterval.current = undefined;
+    }
+    setRuntime(0);
+  }, []);
 
   const checkForWin = useCallback((percentage: number) => {
     if (percentage >= WINNING_PERCENTAGE) {
       setHasWon(true);
       isRunningRef.current = false;
       setIsRunning(false);
+      if (runtimeInterval.current) {
+        clearInterval(runtimeInterval.current);
+        runtimeInterval.current = undefined;
+      }
       alert(`🎉 CONGRATULATIONS! You found a ${percentage.toFixed(2)}% match!\n\nPrivate key has been copied to clipboard.`);
       return true;
     }
@@ -55,8 +92,14 @@ export function useWallet() {
     }
   }, [hasWon, checkForWin, walletInfo]);
 
-  const continuousRun = useCallback(async () => {
-    if (isRunningRef.current || hasWon) return;
+  const startRunning = useCallback(async () => {
+    if (isRunningRef.current || hasWon) {
+      if (hasWon && walletInfo) {
+        alert(`🎉 You've already won with a ${walletInfo.zeroMatchPercentage.toFixed(2)}% match!\n\nPrivate key is in your clipboard.`);
+        navigator.clipboard.writeText(walletInfo.privateKey);
+      }
+      return;
+    }
     
     setIsRunning(true);
     isRunningRef.current = true;
@@ -65,7 +108,7 @@ export function useWallet() {
       generatePrivateKey();
       await new Promise(resolve => setTimeout(resolve, 0));
     }
-  }, [generatePrivateKey, hasWon]);
+  }, [generatePrivateKey, hasWon, walletInfo]);
 
   const stopRunning = useCallback(() => {
     setIsRunning(false);
@@ -77,8 +120,10 @@ export function useWallet() {
     generatePrivateKey, 
     attempts, 
     isRunning, 
-    continuousRun, 
+    startRunning,
     stopRunning,
-    hasWon 
+    hasWon,
+    reset,
+    runtime 
   };
 } 
