@@ -8,7 +8,8 @@ import { getTopMatches } from "@/utils/storage";
 import { WalletInfo } from "@/types";
 import { CONFIG } from "@/config";
 
-const TOP_MATCHES_KEY = 'zero_quest_top_matches';
+export const TOP_MATCHES_KEY = 'zero_quest_top_matches';
+export const GLOBAL_STATE_KEY = 'zero_quest_state';
 
 const WINNING_PERCENTAGE = 25; // For testing - normally this would be much higher
 
@@ -101,7 +102,9 @@ export function useWallet() {
     
     const matches = getTopMatches();
     if (matches.length < 10 || zeroMatchPercentage > matches[matches.length - 1].zeroMatchPercentage) {
-      const updatedMatches = [...matches, newWallet]
+      // Keep existing match stats for old entries
+      const existingMatches = matches.filter(m => m.address !== newWallet.address);
+      const updatedMatches = [...existingMatches, newWallet]
         .sort((a, b) => b.zeroMatchPercentage - a.zeroMatchPercentage)
         .slice(0, 10);
 
@@ -122,6 +125,26 @@ export function useWallet() {
       return;
     }
     
+    // Load previous runtime and attempts from localStorage
+    const savedState = localStorage.getItem(GLOBAL_STATE_KEY);
+    if (savedState) {
+      try {
+        const state = JSON.parse(savedState);
+        if (state.runtime && state.attempts) {
+          const runtime = parseInt(state.runtime);
+          const attempts = parseInt(state.attempts);
+          
+          // Update both refs and state
+          runtimeRef.current = runtime;
+          setRuntime(runtime);
+          attemptsRef.current = attempts;
+          setAttempts(attempts);
+        }
+      } catch (error) {
+        console.error('Error restoring state:', error);
+      }
+    }
+    
     setIsRunning(true);
     isRunningRef.current = true;
     
@@ -136,31 +159,18 @@ export function useWallet() {
     isRunningRef.current = false;
   }, []);
 
-  const updateTopMatches = useCallback((newWallet: WalletInfo) => {
-    const matches = getTopMatches();
-    const updatedWallet = {
-      ...newWallet,
-      matchRuntime: runtime // Add runtime when match is saved
-    };
-    
-    // Add to matches if better than existing or if less than 10 matches
-    if (matches.length < 10 || newWallet.zeroMatchPercentage > matches[matches.length - 1].zeroMatchPercentage) {
-      matches.push(updatedWallet);
-      matches.sort((a, b) => b.zeroMatchPercentage - a.zeroMatchPercentage);
-      matches.splice(10); // Keep only top 10
-      localStorage.setItem(TOP_MATCHES_KEY, JSON.stringify(matches));
-    }
-  }, [runtime]);
-
   return { 
     walletInfo, 
-    generatePrivateKey, 
     attempts, 
     isRunning, 
     startRunning,
     stopRunning,
     hasWon,
     reset,
-    runtime 
+    runtime,
+    setRuntime,
+    runtimeRef,
+    setAttempts,
+    attemptsRef
   };
 } 

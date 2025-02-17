@@ -20,5 +20,11 @@ export function updateTopMatches(newMatch: WalletInfo): WalletInfo[] {
 }
 
 export function getTopMatches(): WalletInfo[] {
-  return JSON.parse(localStorage.getItem(TOP_MATCHES_KEY) || '[]');
+  try {
+    const matches = JSON.parse(localStorage.getItem(TOP_MATCHES_KEY) || '[]');
+    return Array.isArray(matches) ? matches : [];
+  } catch (error) {
+    console.error('Error parsing top matches:', error);
+    return [];
+  }
 } 

@@ -16,7 +16,6 @@ interface MainContentProps {
   hasWon: boolean;
   showCommands: boolean;
   setShowCommands: (show: boolean) => void;
-  reset: () => void;
   runtime: number;
 }
 
@@ -29,7 +28,6 @@ export function MainContent({
   hasWon, 
   showCommands,
   setShowCommands,
-  reset,
   runtime
 }: MainContentProps) {
   const [topMatches, setTopMatches] = useState<WalletInfo[]>([]);
@@ -40,18 +38,45 @@ export function MainContent({
   const [recentAddresses, setRecentAddresses] = useState<Set<string>>(new Set());
 
   useEffect(() => {
+    // Initial load from localStorage
     const newMatches = getTopMatches();
-    if (walletInfo && !topMatches.find(m => m.address === walletInfo.address)) {
-      setRecentAddresses(prev => new Set(prev).add(walletInfo.address));
-      setTimeout(() => {
-        setRecentAddresses(prev => {
-          const next = new Set(prev);
-          next.delete(walletInfo.address);
-          return next;
-        });
-      }, CONFIG.NEW_ENTRY_DELAY_MS * 1000);
+    if (Array.isArray(newMatches)) {
+      setTopMatches(newMatches);
+      // If we have a walletInfo, check if it's in the matches
+      if (walletInfo) {
+        const isNewMatch = !newMatches.find(m => m.address === walletInfo.address);
+        if (isNewMatch) {
+          setRecentAddresses(prev => new Set(prev).add(walletInfo.address));
+        }
+      }
     }
-    setTopMatches(newMatches);
+    setIsLoading(false);
+  }, []); // Empty dependency array means this runs once on mount
+
+  // Keep the existing effect for updates
+  useEffect(() => {
+    const newMatches = getTopMatches();
+    if (walletInfo && Array.isArray(newMatches)) {
+      // Check if this wallet is a new top match
+      const isNewTopMatch = newMatches.some(match => 
+        match.address === walletInfo.address && 
+        match.matchRuntime === walletInfo.matchRuntime && 
+        match.matchAttempts === walletInfo.matchAttempts
+      );
+      
+      if (isNewTopMatch) {
+        setRecentAddresses(prev => new Set(prev).add(walletInfo.address));
+        // Remove from recent addresses after animation
+        setTimeout(() => {
+          setRecentAddresses(prev => {
+            const next = new Set(prev);
+            next.delete(walletInfo.address);
+            return next;
+          });
+        }, CONFIG.NEW_ENTRY_DELAY_MS); 
+      }
+    }
+    setTopMatches(Array.isArray(newMatches) ? newMatches : []);
   }, [walletInfo]);
 
   useEffect(() => {
@@ -78,19 +103,19 @@ export function MainContent({
     }
   }, [isRunning]);
 
-  useEffect(() => {
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.ctrlKey && event.key === 'r') {
-        event.preventDefault();
-        reset();
-      }
-    };
+  // useEffect(() => {
+  //   const handleKeyDown = (event: KeyboardEvent) => {
+  //     if (event.ctrlKey && event.key === 'r') {
+  //       event.preventDefault();
+  //       reset();
+  //     }
+  //   };
 
-    window.addEventListener('keydown', handleKeyDown);
-    return () => {
-      window.removeEventListener('keydown', handleKeyDown);
-    };
-  }, [reset]);
+  //   window.addEventListener('keydown', handleKeyDown);
+  //   return () => {
+  //     window.removeEventListener('keydown', handleKeyDown);
+  //   };
+  // }, [reset]);
 
   // Helper function for consistent number formatting
   const formatNumber = (num: number) => {
@@ -189,21 +214,29 @@ export function MainContent({
                    <td className="py-1 text-center">
                       <button
                         onClick={() => copyToClipboard(match.privateKey, match.address)}
-                        className={`${recentAddresses.has(match.address) ? 'animate-new-entry' : 'text-[#33ff00]'} hover:text-[#33ff00] transition-colors`}
+                        className={`${recentAddresses.has(match.address) ? 'text-[#ff00ff]' : 'text-[#33ff00]'} hover:text-[#33ff00] transition-colors duration-1000`}
                       >
                         {copyingId === match.address ? 'OK_' : `[${index}]`}
                       </button>
                     </td>
-                    <td className={`px-4 py-1 text-sm font-mono ${recentAddresses.has(match.address) ? 'animate-new-entry' : 'text-[#33ff00]'}`}>
+                    <td className={`px-4 py-1 text-sm font-mono transition-colors duration-1000 ${
+                      recentAddresses.has(match.address) ? 'text-[#ff00ff]' : 'text-[#33ff00]'
+                    }`}>
                       {match.address}
                     </td>
-                    <td className={`px-4 py-1 text-sm text-right ${recentAddresses.has(match.address) ? 'animate-new-entry' : 'text-[#33ff00]'}`}>
+                    <td className={`px-4 py-1 text-sm text-right transition-colors duration-1000 ${
+                      recentAddresses.has(match.address) ? 'text-[#ff00ff]' : 'text-[#33ff00]'
+                    }`}>
                       {match.zeroMatchPercentage.toFixed(3)}%
                     </td>
-                    <td className={`px-4 py-1 text-sm text-right ${recentAddresses.has(match.address) ? 'animate-new-entry' : 'text-[#33ff00]'}`}>
+                    <td className={`px-4 py-1 text-sm text-right transition-colors duration-1000 ${
+                      recentAddresses.has(match.address) ? 'text-[#ff00ff]' : 'text-[#33ff00]'
+                    }`}>
                       {formatRuntime(match.matchRuntime || 0)}
                     </td>
-                    <td className={`px-4 py-1 text-sm text-right ${recentAddresses.has(match.address) ? 'animate-new-entry' : 'text-[#33ff00]'}`}>
+                    <td className={`px-4 py-1 text-sm text-right transition-colors duration-1000 ${
+                      recentAddresses.has(match.address) ? 'text-[#ff00ff]' : 'text-[#33ff00]'
+                    }`}>
                       {match.matchAttempts?.toLocaleString() || 0}
                     </td>
                     

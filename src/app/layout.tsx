@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { Space_Grotesk } from 'next/font/google';
+import { ClientLayout } from '@/components/ClientLayout';
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -32,16 +33,17 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>
-        {/* Add this font declaration to the head of your HTML */}
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@700&display=swap" rel="stylesheet" />
       </head>
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} ${spaceGrotesk.variable} antialiased`}
+      <ClientLayout 
+        geistSans={geistSans.variable} 
+        geistMono={geistMono.variable} 
+        spaceGrotesk={spaceGrotesk.variable}
       >
         {children}
-      </body>
+      </ClientLayout>
     </html>
   );
 }
