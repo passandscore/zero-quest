@@ -1,17 +1,20 @@
 import { Modal } from './Modal';
 import { WalletInfo } from '@/types';
 import { useMemo, useState } from 'react';
+import { getTopMatches } from '@/utils/storage';
 
 interface ShareModalProps {
   show: boolean;
   onClose: () => void;
-  topMatch: WalletInfo | null;
-  runtime: number;
-  attempts: number;
 }
 
-export function ShareModal({ show, onClose, topMatch, runtime, attempts }: ShareModalProps) {
+export function ShareModal({ show, onClose }: ShareModalProps) {
   const [copyStatus, setCopyStatus] = useState('');
+
+  const topMatch = useMemo(() => {
+    const matches = getTopMatches();
+    return matches.length > 0 ? matches[0] : null;
+  }, [show]);
 
   const formatRuntime = (seconds: number) => {
     const days = Math.floor(seconds / 86400);
@@ -29,15 +32,17 @@ export function ShareModal({ show, onClose, topMatch, runtime, attempts }: Share
   };
 
   const shareText = useMemo(() => {
+    if (!topMatch) return '';
+    
     const text = `🎯 Hunting the Ethereum Zero Address!\n\n` +
-      `🏆 Best Match: ${topMatch?.zeroMatchPercentage.toFixed(3)}%\n` +
-      `⏱️ Runtime: ${formatRuntime(runtime)}\n` +
-      `🔄 Attempts: ${attempts.toLocaleString()}\n\n` +
+      `🏆 Best Match: ${topMatch.zeroMatchPercentage.toFixed(3)}% \n` +
+      `⏱️ Found at Runtime: ${formatRuntime(topMatch.matchRuntime)}\n` +
+      `🔄 Found at Attempt: ${topMatch.matchAttempts.toLocaleString()}\n\n` +
       `Join the quest at https://zeroquest.io\n\n` +
       `#ZeroQuest #Ethereum #Web3`;
 
     return text;
-  }, [topMatch, runtime, attempts]);
+  }, [topMatch]);
 
   const copyToClipboard = async () => {
     await navigator.clipboard.writeText(shareText);
@@ -69,4 +74,4 @@ export function ShareModal({ show, onClose, topMatch, runtime, attempts }: Share
       </div>
     </Modal>
   );
-} 
+}

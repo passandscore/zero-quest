@@ -5,6 +5,7 @@ import { useState, useEffect } from "react";
 import { getTopMatches } from "@/utils/storage";
 import { CONFIG } from "@/config/index";
 import { CommandsTable } from "@/components/CommandsTable";
+import { formatRuntime } from '@/utils/formatRuntime';
 
 interface MainContentProps {
   walletInfo: WalletInfo | null;
@@ -90,21 +91,6 @@ export function MainContent({
       window.removeEventListener('keydown', handleKeyDown);
     };
   }, [reset]);
-
-  const formatRuntime = (seconds: number) => {
-    const days = Math.floor(seconds / 86400);
-    const hours = Math.floor((seconds % 86400) / 3600);
-    const minutes = Math.floor((seconds % 3600) / 60);
-    const secs = seconds % 60;
-    
-    let result = '';
-    if (days > 0) result += `${days.toString().padStart(2, '0')}:`;
-    if (days > 0 || hours > 0) result += `${hours.toString().padStart(2, '0')}:`;
-    if (days > 0 || hours > 0 || minutes > 0) result += `${minutes.toString().padStart(2, '0')}:`;
-    result += `${secs.toString().padStart(2, '0')}`;
-    
-    return result;
-  };
 
   // Helper function for consistent number formatting
   const formatNumber = (num: number) => {
@@ -192,6 +178,8 @@ export function MainContent({
                   <th className="px-4 py-1 text-left text-[#33ff00] font-normal">#</th>
                   <th className="px-4 py-1 text-left text-[#33ff00] font-normal">ADDRESS</th>
                   <th className="px-4 py-1 text-right text-[#33ff00] font-normal">MATCH%</th>
+                  <th className="px-4 py-1 text-right text-[#33ff00] font-normal">RUNTIME</th>
+                  <th className="px-4 py-1 text-right text-[#33ff00] font-normal">ATTEMPTS</th>
                   <th className="px-4 py-1 text-right text-[#33ff00] font-normal">KEY</th>
                 </tr>
               </thead>
@@ -206,6 +194,12 @@ export function MainContent({
                     </td>
                     <td className={`px-4 py-1 text-sm text-right ${recentAddresses.has(match.address) ? 'animate-new-entry' : 'text-[#33ff00]'}`}>
                       {match.zeroMatchPercentage.toFixed(3)}%
+                    </td>
+                    <td className={`px-4 py-1 text-sm text-right ${recentAddresses.has(match.address) ? 'animate-new-entry' : 'text-[#33ff00]'}`}>
+                      {formatRuntime(match.matchRuntime || 0)}
+                    </td>
+                    <td className={`px-4 py-1 text-sm text-right ${recentAddresses.has(match.address) ? 'animate-new-entry' : 'text-[#33ff00]'}`}>
+                      {match.matchAttempts?.toLocaleString() || 0}
                     </td>
                     <td className="px-4 py-1 text-right">
                       <button

@@ -4,25 +4,33 @@ import { useState, useCallback, useRef, useEffect } from "react";
 import { randomBytes } from "crypto";
 import { Wallet } from "ethers";
 import { calculateZeroMatch, getTestAddress } from "@/utils/calculations";
-import { updateTopMatches } from "@/utils/storage";
+import { getTopMatches } from "@/utils/storage";
 import { WalletInfo } from "@/types";
 import { CONFIG } from "@/config";
+
+const TOP_MATCHES_KEY = 'zero_quest_top_matches';
 
 const WINNING_PERCENTAGE = 25; // For testing - normally this would be much higher
 
 export function useWallet() {
   const [walletInfo, setWalletInfo] = useState<WalletInfo | null>(null);
   const [attempts, setAttempts] = useState(0);
+  const attemptsRef = useRef(0);
   const [isRunning, setIsRunning] = useState(false);
-  const [hasWon, setHasWon] = useState(false);
   const isRunningRef = useRef(false);
+  const [hasWon, setHasWon] = useState(false);
   const [runtime, setRuntime] = useState(0);
+  const runtimeRef = useRef(0);
   const runtimeInterval = useRef<NodeJS.Timeout | undefined>(undefined);
 
   useEffect(() => {
     if (isRunningRef.current && !hasWon) {
       runtimeInterval.current = setInterval(() => {
-        setRuntime(prev => prev + 1);
+        setRuntime(prev => {
+          const newRuntime = prev + 1;
+          runtimeRef.current = newRuntime;
+          return newRuntime;
+        });
       }, 1000);
     }
 
@@ -37,10 +45,11 @@ export function useWallet() {
   const reset = useCallback(() => {
     setWalletInfo(null);
     setAttempts(0);
+    attemptsRef.current = 0;
     setIsRunning(false);
     setHasWon(false);
     isRunningRef.current = false;
-    localStorage.removeItem('zero_quest_top_matches');
+    localStorage.removeItem(TOP_MATCHES_KEY);
     if (runtimeInterval.current) {
       clearInterval(runtimeInterval.current);
       runtimeInterval.current = undefined;
@@ -72,7 +81,8 @@ export function useWallet() {
       return;
     }
 
-    setAttempts(prev => prev + 1);
+    attemptsRef.current += 1;
+    setAttempts(attemptsRef.current);
     
     const key = "0x" + randomBytes(32).toString("hex");
     const wallet = new Wallet(key);
@@ -81,11 +91,21 @@ export function useWallet() {
     const newWallet = {
       privateKey: key,
       address: CONFIG.TEST_MODE ? getTestAddress() : wallet.address,
-      zeroMatchPercentage
+      zeroMatchPercentage,
+      matchRuntime: runtimeRef.current,
+      matchAttempts: attemptsRef.current
     };
 
     setWalletInfo(newWallet);
-    updateTopMatches(newWallet);
+    
+    const matches = getTopMatches();
+    if (matches.length < 10 || zeroMatchPercentage > matches[matches.length - 1].zeroMatchPercentage) {
+      const updatedMatches = [...matches, newWallet]
+        .sort((a, b) => b.zeroMatchPercentage - a.zeroMatchPercentage)
+        .slice(0, 10);
+
+      localStorage.setItem(TOP_MATCHES_KEY, JSON.stringify(updatedMatches));
+    }
     
     if (checkForWin(zeroMatchPercentage)) {
       navigator.clipboard.writeText(key);
@@ -114,6 +134,22 @@ export function useWallet() {
     setIsRunning(false);
     isRunningRef.current = false;
   }, []);
+
+  const updateTopMatches = useCallback((newWallet: WalletInfo) => {
+    const matches = getTopMatches();
+    const updatedWallet = {
+      ...newWallet,
+      matchRuntime: runtime // Add runtime when match is saved
+    };
+    
+    // Add to matches if better than existing or if less than 10 matches
+    if (matches.length < 10 || newWallet.zeroMatchPercentage > matches[matches.length - 1].zeroMatchPercentage) {
+      matches.push(updatedWallet);
+      matches.sort((a, b) => b.zeroMatchPercentage - a.zeroMatchPercentage);
+      matches.splice(10); // Keep only top 10
+      localStorage.setItem(TOP_MATCHES_KEY, JSON.stringify(matches));
+    }
+  }, [runtime]);
 
   return { 
     walletInfo, 

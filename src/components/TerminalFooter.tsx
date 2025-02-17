@@ -23,7 +23,7 @@ export function TerminalFooter({
       <div className="px-20">
         <div className="py-2 flex items-center justify-between text-base">
           <div className="flex items-center justify-center w-full xl:w-auto">
-            <span className="text-[#33ff00] mr-2 hidden xl:inline">root@zeroquest:~$ ls -la</span>
+            <span className="text-[#33ff00] mr-5 hidden xl:inline">root@zeroquest:~$ ls -la</span>
             <div className="flex gap-8 text-[#33ff00]">
               <button
                 onClick={() => setShowCommands(true)}

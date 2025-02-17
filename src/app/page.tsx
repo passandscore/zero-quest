@@ -96,9 +96,6 @@ export default function Home() {
       <ShareModal 
         show={showShare}
         onClose={() => setShowShare(false)}
-        topMatch={topMatch}
-        runtime={runtime}
-        attempts={attempts}
       />
     </div>
   );
