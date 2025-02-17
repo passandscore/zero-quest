@@ -20,19 +20,16 @@ export function TerminalFooter({
     <footer className="fixed bottom-0 left-0 right-0 bg-black border-t border-[#33ff00] h-14">
       <div className="px-20">
         <div className="py-2 flex items-center justify-between text-sm">
-          <div className="flex items-center">
-            <span className="text-[#33ff00]mr-2">root@zeroquest:~$</span>
-            <span className="text-[#33ff00] mr-8">ls -la</span>
+          <div className="flex items-center justify-center w-full xl:w-auto">
+            <span className="text-[#33ff00] mr-2 hidden xl:inline">root@zeroquest:~$ ls -la</span>
             <div className="flex gap-8 text-[#33ff00]">
               <button
                 onClick={() => setShowCommands(true)}
-                
               >
                 COMMANDS.txt [CTRL+/]
               </button>
               <button
                 onClick={() => window.open(VAULT_URL, '_blank')}
-               
               >
                 VAULT.exe [CTRL+V]
               </button>
@@ -43,7 +40,7 @@ export function TerminalFooter({
               </button>
             </div>
           </div>
-          <span className="text-[#33ff00]">Last login: {lastLogin}</span>
+          <span className="text-[#33ff00] hidden xl:inline">Last login: {lastLogin}</span>
         </div>
       </div>
     </footer>

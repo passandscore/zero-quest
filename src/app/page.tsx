@@ -53,12 +53,12 @@ export default function Home() {
     <div className="min-h-screen bg-black text-green-500 font-mono p-4">
       <TabAnimation runtime={runtime} isRunning={isRunning} />
       <HelpModal show={showInfo} onClose={() => setShowInfo(false)} />
-      <div className="grid grid-cols-[20%_1fr_20%] gap-4 h-[calc(100vh-theme(spacing.4)-theme(spacing.14))]">
+      <div className="grid grid-cols-[20%_1fr_20%] gap-4 h-[calc(100vh-theme(spacing.14))] -mt-4">
         <div className="border-r border-[#33ff00]">
           {/* Ad Space 1 */}
         </div>
 
-        <main className="flex flex-col gap-8">
+        <main className="flex flex-col gap-8 pt-4">
           <MainContent 
             walletInfo={walletInfo}
             copyToClipboard={copyToClipboard}
