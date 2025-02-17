@@ -7,6 +7,7 @@ import { useWallet } from "@/hooks/useWallet";
 import { useCopyToClipboard } from "@/hooks/useCopyToClipboard";
 import { getTopMatches } from "@/utils/storage";
 import { HelpModal } from "@/components/HelpModal";
+import { TabAnimation } from '@/components/TabAnimation';
 
 export default function Home() {
   const [showInfo, setShowInfo] = useState(false);
@@ -50,6 +51,7 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-black text-green-500 font-mono p-4">
+      <TabAnimation runtime={runtime} isRunning={isRunning} />
       <HelpModal show={showInfo} onClose={() => setShowInfo(false)} />
       <div className="grid grid-cols-[20%_1fr_20%] gap-4 h-[calc(100vh-theme(spacing.4)-theme(spacing.14))]">
         <div className="border-r border-[#33ff00]">
