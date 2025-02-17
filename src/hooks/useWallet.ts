@@ -49,12 +49,13 @@ export function useWallet() {
     setIsRunning(false);
     setHasWon(false);
     isRunningRef.current = false;
-    localStorage.removeItem(TOP_MATCHES_KEY);
+    runtimeRef.current = 0;
     if (runtimeInterval.current) {
       clearInterval(runtimeInterval.current);
       runtimeInterval.current = undefined;
     }
     setRuntime(0);
+    localStorage.removeItem(TOP_MATCHES_KEY);
   }, []);
 
   const checkForWin = useCallback((percentage: number) => {

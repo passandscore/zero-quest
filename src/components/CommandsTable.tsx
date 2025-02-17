@@ -9,9 +9,9 @@ export function CommandsTable({ show, onClose }: CommandsTableProps) {
   const commands = [
     { key: 'SPACE', description: 'Start/Stop generating addresses' },
     { key: 'CTRL+R', description: 'Reset everything' },
-    { key: 'CTRL+C', description: 'Copy current private key' },
+    { key: 'C', description: 'Copy focused content' },
     { key: '0-9', description: 'Copy private key from top matches' },
-    { key: 'CTRL+/', description: 'Toggle commands' },
+    { key: 'CTRL+V', description: 'View vault balance' },
     { key: 'ESC', description: 'Close modals' },
     { key: 'CTRL+S', description: 'Share your progress' },
   ];

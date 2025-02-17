@@ -1,6 +1,5 @@
 import { Modal } from './Modal';
-import { WalletInfo } from '@/types';
-import { useMemo, useState } from 'react';
+import { useMemo, useState, useEffect } from 'react';
 import { getTopMatches } from '@/utils/storage';
 
 interface ShareModalProps {
@@ -34,12 +33,19 @@ export function ShareModal({ show, onClose }: ShareModalProps) {
   const shareText = useMemo(() => {
     if (!topMatch) return '';
     
-    const text = `🎯 Hunting the Ethereum Zero Address!\n\n` +
-      `🏆 Best Match: ${topMatch.zeroMatchPercentage.toFixed(3)}% \n` +
-      `⏱️ Found at Runtime: ${formatRuntime(topMatch.matchRuntime)}\n` +
-      `🔄 Found at Attempt: ${topMatch.matchAttempts.toLocaleString()}\n\n` +
-      `Join the quest at https://zeroquest.io\n\n` +
-      `#ZeroQuest #Ethereum #Web3`;
+    const text = 
+`┌─────────────── ZERO_QUEST ───────────────┐
+
+🎯 Hunting Zero Address Private Key...
+
+> BEST_MATCH: ${topMatch.zeroMatchPercentage.toFixed(3)}%
+> RUNTIME: ${formatRuntime(topMatch.matchRuntime)}
+> ATTEMPT: ${topMatch.matchAttempts.toLocaleString()}
+
+> zeroquest.io
+> #ZeroQuest #Ethereum #Web3
+
+└──────────────────────────────────────┘`;
 
     return text;
   }, [topMatch]);
@@ -50,15 +56,38 @@ export function ShareModal({ show, onClose }: ShareModalProps) {
     setTimeout(() => setCopyStatus(''), 2000);
   };
 
+  useEffect(() => {
+    const handleKeyPress = (event: KeyboardEvent) => {
+      // Handle ESC
+      if (event.key === 'Escape') {
+        onClose();
+      }
+      
+      // Handle 'c' key (changed from Ctrl+C)
+      if (event.key === 'c' || event.key === 'C') {
+        event.preventDefault();
+        copyToClipboard();
+      }
+    };
+
+    if (show) {
+      window.addEventListener('keydown', handleKeyPress);
+    }
+
+    return () => {
+      window.removeEventListener('keydown', handleKeyPress);
+    };
+  }, [show, onClose, copyToClipboard]);
+
   return (
     <Modal isOpen={show} onClose={onClose}>
       <div className="p-4 font-mono text-base">
-        <div className="text-[#33ff00] mb-4">
+        <div className="text-[#33ff00] mb-4 text-left">
           {'>'} cat SHARE.txt
         </div>
         <div className="space-y-4">
-          <div className="bg-[#001100] p-4 border border-[#33ff00]/20 rounded">
-            <pre className="whitespace-pre-wrap text-[#33ff00] text-sm">
+          <div className="bg-[#001100] p-4 border border-[#33ff00]/20 rounded flex justify-center">
+            <pre className="whitespace-pre text-[#33ff00] text-sm">
               {shareText}
             </pre>
           </div>

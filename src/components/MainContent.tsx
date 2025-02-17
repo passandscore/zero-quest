@@ -175,19 +175,24 @@ export function MainContent({
             <table className="w-full border-collapse">
               <thead>
                 <tr className="border-y border-[#33ff00]/20">
-                  <th className="px-4 py-1 text-left text-[#33ff00] font-normal">#</th>
+                <th className="px-4 py-1 text-center text-[#33ff00] font-normal">KEY</th>
                   <th className="px-4 py-1 text-left text-[#33ff00] font-normal">ADDRESS</th>
                   <th className="px-4 py-1 text-right text-[#33ff00] font-normal">MATCH%</th>
                   <th className="px-4 py-1 text-right text-[#33ff00] font-normal">RUNTIME</th>
-                  <th className="px-4 py-1 text-right text-[#33ff00] font-normal">ATTEMPTS</th>
-                  <th className="px-4 py-1 text-right text-[#33ff00] font-normal">KEY</th>
+                  <th className="px-4 py-1 text-right text-[#33ff00] font-normal">ATTEMPT</th>
+                 
                 </tr>
               </thead>
               <tbody>
                 {topMatches.map((match, index) => (
                   <tr key={match.address} className="border-t border-[#33ff00]/10">
-                    <td className={`px-4 py-1 ${recentAddresses.has(match.address) ? 'animate-new-entry' : 'text-[#33ff00]'}`}>
-                      {index}
+                   <td className="py-1 text-center">
+                      <button
+                        onClick={() => copyToClipboard(match.privateKey, match.address)}
+                        className={`${recentAddresses.has(match.address) ? 'animate-new-entry' : 'text-[#33ff00]'} hover:text-[#33ff00] transition-colors`}
+                      >
+                        {copyingId === match.address ? 'OK_' : `[${index}]`}
+                      </button>
                     </td>
                     <td className={`px-4 py-1 text-sm font-mono ${recentAddresses.has(match.address) ? 'animate-new-entry' : 'text-[#33ff00]'}`}>
                       {match.address}
@@ -201,14 +206,7 @@ export function MainContent({
                     <td className={`px-4 py-1 text-sm text-right ${recentAddresses.has(match.address) ? 'animate-new-entry' : 'text-[#33ff00]'}`}>
                       {match.matchAttempts?.toLocaleString() || 0}
                     </td>
-                    <td className="px-4 py-1 text-right">
-                      <button
-                        onClick={() => copyToClipboard(match.privateKey, match.address)}
-                        className={`${recentAddresses.has(match.address) ? 'animate-new-entry' : 'text-[#33ff00]'} hover:text-[#33ff00] transition-colors`}
-                      >
-                        {copyingId === match.address ? 'OK_' : `[${index}]`}
-                      </button>
-                    </td>
+                    
                   </tr>
                 ))}
               </tbody>
