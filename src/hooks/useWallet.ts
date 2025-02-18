@@ -44,6 +44,7 @@ export function useWallet() {
   }, [isRunningRef.current, hasWon]);
 
   const reset = useCallback(() => {
+    // Reset state
     setWalletInfo(null);
     setAttempts(0);
     attemptsRef.current = 0;
@@ -51,12 +52,17 @@ export function useWallet() {
     setHasWon(false);
     isRunningRef.current = false;
     runtimeRef.current = 0;
+    setRuntime(0);
+    
+    // Clear runtime interval if running
     if (runtimeInterval.current) {
       clearInterval(runtimeInterval.current);
       runtimeInterval.current = undefined;
     }
-    setRuntime(0);
+
+    // Clear all localStorage values
     localStorage.removeItem(TOP_MATCHES_KEY);
+    localStorage.removeItem(GLOBAL_STATE_KEY);
   }, []);
 
   const checkForWin = useCallback((percentage: number) => {
