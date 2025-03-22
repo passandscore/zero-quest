@@ -36,6 +36,7 @@ export default function RootLayout({
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@700&display=swap" rel="stylesheet" />
+        <meta name="coinzilla" content="ab874c52a1c7c0749f88e1a35a3b1eeb" />
       </head>
       <ClientLayout 
         geistSans={geistSans.variable} 
