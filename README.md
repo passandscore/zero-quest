@@ -1,36 +1,63 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+<div align="center" style="margin-bottom: 20px;">
+<img src="assets/cover.png" alt="Cover Image" width="600"/>
+</div>
+
+# Zero Quest
+
+Welcome to **Zero Quest**—where the brave dive into the wild world of Ethereum to crack the zero address. Think you can find the private key? It's a legendary challenge, and you're about to take it on.
+
+🔗 **Check the Current Balance**: 💰 See what's locked behind the zero address [here](https://etherscan.io/address/0x0000000000000000000000000000000000000000#multichain-portfolio).
 
 ## Getting Started
 
-First, run the development server:
+Ready to roll? Here's how:
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+1. **Install the Goods**: Get your dependencies sorted with:
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+   ```bash
+   yarn install
+   ```
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+2. **Fire It Up**: Start the server and get things moving:
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+   ```bash
+   yarn run dev
+   ```
 
-## Learn More
+3. **Dive In**: Hit up [http://localhost:3000](http://localhost:3000) and start your quest.
 
-To learn more about Next.js, take a look at the following resources:
+## Why Zero Quest?
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+- **Epic Challenge**: Tackle the zero address and make history.
+- **Slick UI**: Navigate with ease and style.
+- **Join the Crew**: Be part of a community of crypto adventurers.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Help Section
 
-## Deploy on Vercel
+Need a hand? Check out the help section to get tips and tricks on navigating Zero Quest. Press `H` to open `HELP.txt`.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+<div align="center" style="margin-top: 20px;">
+<img src="assets/help.png" alt="Help Section" width="600"/>
+</div>
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Commands Overview
+
+Master the game with these commands. Get familiar with the controls and take your quest to the next level. Press `CTRL+/` to open `COMMANDS.txt`.
+
+<div align="center" style="margin-top: 20px;">
+<img src="assets/commands.png" alt="Commands Overview" width="600"/>
+</div>
+
+## Share Your Glory
+
+Found a killer match? Don't keep it to yourself! Flex your achievements and let the world know you're a true crypto explorer. Use the built-in share feature to brag about your progress and inspire others to join the quest.
+
+<div align="center" style="margin-top: 20px;">
+<img src="assets/share.png" alt="Share Feature" width="600"/>
+</div>
+
+Jump into Zero Quest and see if you've got what it takes. Whether you're a crypto pro or just curious, this is your shot at glory.
+
+---
+
+Start your Zero Quest today. Let's see what you're made of!
