@@ -39,7 +39,7 @@ export function useKeyboardShortcuts({
     // H key for help/info
     if (event.key.toLowerCase() === 'h') {
       event.preventDefault(); // Prevent default behavior
-      setShowInfo(prev => !prev); // Toggle the showInfo state
+      setShowInfo(!showInfo); // Toggle the showInfo state
       return;
     }
 
@@ -64,7 +64,7 @@ export function useKeyboardShortcuts({
     // Handle commands toggle
     if (event.key === '/' && (event.ctrlKey || event.metaKey)) {
       event.preventDefault();
-      setShowCommands(prev => !prev);
+      setShowCommands(!showCommands);
       return;
     }
 
@@ -104,7 +104,7 @@ export function useKeyboardShortcuts({
     // Add share command (Ctrl+S)
     if (event.key.toLowerCase() === 's' && (event.ctrlKey || event.metaKey)) {
       event.preventDefault();
-      setShowShare(prev => !prev);
+      setShowShare(!showShare);
       return;
     }
   }, [

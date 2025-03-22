@@ -1,4 +1,5 @@
 "use client";
+
 import { useState, useEffect, useCallback } from "react";
 import { MainContent } from "@/components/MainContent";
 import { TerminalFooter } from "@/components/TerminalFooter";
@@ -21,7 +22,6 @@ export default function Home() {
   
   const { 
     walletInfo, 
-    setWalletInfo,
     attempts, 
     isRunning, 
     startRunning, 
@@ -239,7 +239,7 @@ export default function Home() {
     setShowShare,
     runtime,
     attempts,
-    setWalletInfo,
+    setRuntime,
     runtimeRef,
     attemptsRef
   ]);
@@ -301,7 +301,6 @@ export default function Home() {
       <TerminalFooter
         setShowCommands={setShowCommands}
         setShowInfo={setShowInfo}
-        setShowShare={setShowShare}
         showResetConfirm={showResetConfirm}
         showVaultConfirm={showVaultConfirm}
         showFileImportConfirm={showFileImportConfirm}
@@ -311,7 +310,6 @@ export default function Home() {
         runtimeRef={runtimeRef}
         setAttempts={setAttempts}
         attemptsRef={attemptsRef}
-        setShowExportConfirm={setShowExportConfirm}
       />
       <ShareModal 
         show={showShare}
