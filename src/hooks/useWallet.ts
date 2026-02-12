@@ -60,9 +60,11 @@ export function useWallet() {
       runtimeInterval.current = undefined;
     }
 
-    // Clear all localStorage values
-    localStorage.removeItem(TOP_MATCHES_KEY);
-    localStorage.removeItem(GLOBAL_STATE_KEY);
+    // Clear all localStorage values (client-only)
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem(TOP_MATCHES_KEY);
+      localStorage.removeItem(GLOBAL_STATE_KEY);
+    }
   }, []);
 
   const checkForWin = useCallback((percentage: number) => {
@@ -107,7 +109,7 @@ export function useWallet() {
     setWalletInfo(newWallet);
     
     const matches = getTopMatches();
-    if (matches.length < 10 || zeroMatchPercentage > matches[matches.length - 1].zeroMatchPercentage) {
+    if (typeof window !== 'undefined' && (matches.length < 10 || zeroMatchPercentage > matches[matches.length - 1].zeroMatchPercentage)) {
       // Keep existing match stats for old entries
       const existingMatches = matches.filter(m => m.address !== newWallet.address);
       const updatedMatches = [...existingMatches, newWallet]
@@ -131,8 +133,8 @@ export function useWallet() {
       return;
     }
     
-    // Load previous runtime and attempts from localStorage
-    const savedState = localStorage.getItem(GLOBAL_STATE_KEY);
+    // Load previous runtime and attempts from localStorage (client-only)
+    const savedState = typeof window !== 'undefined' ? localStorage.getItem(GLOBAL_STATE_KEY) : null;
     if (savedState) {
       try {
         const state = JSON.parse(savedState);
