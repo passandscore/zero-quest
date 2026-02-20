@@ -41,7 +41,7 @@ export function HelpModal({ show, onClose }: HelpModalProps) {
               <li>1. Press SPACE (or tap GO on mobile) to start generating random private keys</li>
               <li>2. Each key generates an Ethereum address</li>
               <li>3. The program calculates how close each address is to the zero address</li>
-              <li>4. Top matches are saved—view them on the Leaderboard page</li>
+              <li>4. Top matches are saved—view them in the Top 10 modal</li>
               <li>5. Use CTRL+V to check zero address balance (open etherscan)</li>
             </ul>
           </div>

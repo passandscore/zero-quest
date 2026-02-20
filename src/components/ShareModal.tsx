@@ -1,5 +1,10 @@
 import { Modal } from "./Modal";
 import { useMemo, useEffect } from "react";
+import { FaXTwitter } from "react-icons/fa6";
+
+function ShareIcon({ className }: { className?: string }) {
+  return <FaXTwitter className={className} aria-hidden />;
+}
 import { getTopMatches } from "@/utils/storage";
 import { ZEROQUEST_X_URL } from "@/utils/constants";
 
@@ -29,7 +34,13 @@ export function ShareModal({ show, onClose }: ShareModalProps) {
 
   const tweetText = useMemo(() => {
     if (!topMatch) return "";
-    return `Hunting the zero address. Best match: ${topMatch.zeroMatchPercentage.toFixed(3)}%, Runtime: ${formatRuntime(topMatch.matchRuntime)}, Attempts: ${topMatch.matchAttempts.toLocaleString()}. @zeroquest #ZeroQuest #Ethereum`;
+    return `Hunting the zero address.
+
+Best match: ${topMatch.zeroMatchPercentage.toFixed(3)}%
+Runtime: ${formatRuntime(topMatch.matchRuntime)}
+Attempts: ${topMatch.matchAttempts.toLocaleString()}
+
+@zeroquest #ZeroQuest #Ethereum`;
   }, [topMatch]);
 
   const tweetUrl = useMemo(() => {
@@ -53,9 +64,12 @@ export function ShareModal({ show, onClose }: ShareModalProps) {
   return (
     <Modal isOpen={show} onClose={onClose}>
       <div className="p-8">
-        <h2 className="text-[11px] font-medium tracking-widest uppercase text-steam-text-muted mb-6">Post to X</h2>
+        <h2 className="text-[11px] font-medium tracking-widest uppercase text-steam-text-muted mb-6 flex items-center gap-2">
+          <ShareIcon className="w-4 h-4" />
+          Post to X
+        </h2>
         <div className="mb-8">
-          <p className="text-steam-text text-sm leading-relaxed">{tweetText || "No progress to share yet."}</p>
+          <p className="text-steam-text text-sm leading-relaxed whitespace-pre-line">{tweetText || "No progress to share yet."}</p>
         </div>
         <div className="flex items-center justify-between">
           <a

@@ -34,7 +34,7 @@ export function CommandsTable({ show, onClose }: CommandsTableProps) {
       commands: [
         { key: 'CTRL+V', description: 'View vault on Etherscan' },
         { key: 'ESC', description: 'Close any open window' },
-        { key: '—', description: 'Leaderboard at /leaderboard' },
+        { key: 'L', description: 'Open Top 10 modal' },
       ]
     }
   ];

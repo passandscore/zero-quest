@@ -9,9 +9,10 @@ import Link from "next/link";
 interface LeaderboardContentProps {
   copyToClipboard: (text: string, id: string) => void;
   copyingId: string | null;
+  onCloseGenerator?: () => void;
 }
 
-export function LeaderboardContent({ copyToClipboard, copyingId }: LeaderboardContentProps) {
+export function LeaderboardContent({ copyToClipboard, copyingId, onCloseGenerator }: LeaderboardContentProps) {
   const [topMatches, setTopMatches] = useState<WalletInfo[]>([]);
   const [recentAddresses, setRecentAddresses] = useState<Set<string>>(new Set());
 
@@ -38,32 +39,32 @@ export function LeaderboardContent({ copyToClipboard, copyingId }: LeaderboardCo
     return (
       <div className="text-center py-20">
         <p className="text-steam-text-muted text-sm mb-8">No matches yet.</p>
-        <Link
-          href="/"
-          className="text-[11px] font-medium tracking-widest uppercase text-steam hover:text-steam/80 transition-colors"
-        >
-          Start generating
-        </Link>
+        {onCloseGenerator ? (
+          <button
+            onClick={onCloseGenerator}
+            className="text-[11px] font-medium tracking-widest uppercase text-steam hover:text-steam/80 transition-colors"
+          >
+            Start generating
+          </button>
+        ) : (
+          <Link
+            href="/"
+            className="text-[11px] font-medium tracking-widest uppercase text-steam hover:text-steam/80 transition-colors"
+          >
+            Start generating
+          </Link>
+        )}
       </div>
     );
   }
 
   return (
     <div className="space-y-8">
-      <div>
-        <Link
-          href="/"
-          className="text-[11px] font-medium tracking-widest uppercase text-steam-text-muted hover:text-steam transition-colors"
-        >
-          ← Generator
-        </Link>
-      </div>
-
       <div className="overflow-x-auto">
         <div className="text-[11px] font-medium tracking-widest uppercase text-steam-text-muted mb-6">Top matches</div>
         {/* Desktop: full table */}
         <div className="hidden md:block overflow-x-auto">
-          <table className="w-full border-collapse min-w-[500px]">
+            <table className="w-full border-collapse min-w-[520px]">
             <thead>
               <tr>
                 <th className="px-2 sm:px-4 py-3 text-center text-[11px] font-medium tracking-widest uppercase text-steam-text-muted">

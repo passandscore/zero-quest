@@ -101,8 +101,8 @@ export function MainContent({
         percentage={showMilestone ?? 0}
       />
 
-      <div className="text-center w-full mb-12 sm:mb-16">
-        <h1 className="text-3xl sm:text-5xl font-normal tracking-tight text-steam-text mb-8">
+      <div className="text-center w-full mb-6 sm:mb-8">
+        <h1 className="text-3xl sm:text-5xl font-normal tracking-tight text-steam-text mb-4 sm:mb-6">
           Zero Quest
         </h1>
         <div className="space-y-0.5 text-base text-steam-text-muted tracking-wide">
@@ -124,7 +124,7 @@ export function MainContent({
           </p>
         </div>
         {hasStarted && (
-          <div className="mt-8 w-full max-w-[280px] mx-auto">
+          <div className="mt-4 sm:mt-6 w-full max-w-[280px] mx-auto">
             <p className="text-xs text-steam-text-muted tracking-widest uppercase mb-2">
               Best match
             </p>

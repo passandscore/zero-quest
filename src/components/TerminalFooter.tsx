@@ -1,11 +1,16 @@
-import { VAULT_URL } from '@/utils/constants';
+import { FaXTwitter } from "react-icons/fa6";
 
 const TOP_MATCHES_KEY = 'zero_quest_top_matches';
+
+function ShareIcon({ className }: { className?: string }) {
+  return <FaXTwitter className={className} aria-hidden />;
+}
 
 interface TerminalFooterProps {
   setShowCommands: (show: boolean) => void;
   setShowInfo: (show: boolean) => void;
   setShowShare?: (show: boolean) => void;
+  setShowTop10?: (show: boolean) => void;
   showResetConfirm?: boolean;
   showFileImportConfirm?: boolean;
   showFileExportConfirm?: boolean;
@@ -20,6 +25,7 @@ export function TerminalFooter({
   setShowCommands,
   setShowInfo,
   setShowShare,
+  setShowTop10,
   showResetConfirm,
   showFileImportConfirm,
   showFileExportConfirm,
@@ -92,29 +98,21 @@ export function TerminalFooter({
             {setShowShare && (
               <button
                 onClick={() => setShowShare(true)}
-                className="text-steam-text-muted hover:text-steam-text transition-colors"
+                className="text-steam-text-muted hover:text-steam-text transition-colors p-1"
                 aria-label="Post to X"
               >
-                Post to X
+                <ShareIcon className="w-4 h-4" />
               </button>
             )}
-            <a
-              href={VAULT_URL}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-steam-text-muted hover:text-steam-text transition-colors"
-              aria-label="View vault"
-            >
-              Vault
-            </a>
-            <a
-              href="/leaderboard"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-steam-text-muted hover:text-steam-text transition-colors"
-            >
-              Leaderboard
-            </a>
+            {setShowTop10 && (
+              <button
+                onClick={() => setShowTop10(true)}
+                className="text-steam-text-muted hover:text-steam-text transition-colors"
+                aria-label="Top 10"
+              >
+                Top 10
+              </button>
+            )}
           </>
         )}
       </div>

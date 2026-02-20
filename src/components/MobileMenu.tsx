@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef } from "react";
-import { VAULT_URL } from "@/utils/constants";
+import { FaXTwitter } from "react-icons/fa6";
 
 const TOP_MATCHES_KEY = "zero_quest_top_matches";
 
@@ -17,6 +17,7 @@ interface MobileMenuProps {
   setShowCommands: (show: boolean) => void;
   setShowInfo: (show: boolean) => void;
   setShowShare: (show: boolean) => void;
+  setShowTop10: (show: boolean) => void;
   setShowResetConfirm: (show: boolean) => void;
   setShowFileImportConfirm: (show: boolean) => void;
   setShowExportConfirm: (show: boolean) => void;
@@ -36,6 +37,7 @@ export function MobileMenu({
   setShowCommands,
   setShowInfo,
   setShowShare,
+  setShowTop10,
   setShowResetConfirm,
   setShowFileImportConfirm,
   setShowExportConfirm,
@@ -224,9 +226,11 @@ export function MobileMenu({
                     </button>
                     <button
                       onClick={() => handleAction(() => setShowShare(true))}
-                      className="w-full text-left py-3 px-0 text-[11px] font-medium tracking-widest uppercase text-steam-text-muted hover:text-steam transition-colors"
+                      className="w-full text-left py-3 px-0 text-steam-text-muted hover:text-steam transition-colors flex items-center gap-2"
+                      aria-label="Post to X"
                     >
-                      Post to X
+                      <FaXTwitter className="w-4 h-4" />
+                      <span className="text-[11px] font-medium tracking-widest uppercase">Post to X</span>
                     </button>
                     <button
                       onClick={() => handleAction(() => setShowResetConfirm(true))}
@@ -235,24 +239,12 @@ export function MobileMenu({
                     >
                       Reset
                     </button>
-                    <a
-                      href="/leaderboard"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      onClick={() => setIsOpen(false)}
-                      className="block w-full text-left py-3 px-0 text-[11px] font-medium tracking-widest uppercase text-steam-text-muted hover:text-steam transition-colors"
+                    <button
+                      onClick={() => handleAction(() => setShowTop10(true))}
+                      className="w-full text-left py-3 px-0 text-[11px] font-medium tracking-widest uppercase text-steam-text-muted hover:text-steam transition-colors"
                     >
-                      Leaderboard
-                    </a>
-                    <a
-                      href={VAULT_URL}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      onClick={() => setIsOpen(false)}
-                      className="block w-full text-left py-3 px-0 text-[11px] font-medium tracking-widest uppercase text-steam-text-muted hover:text-steam transition-colors"
-                    >
-                      Vault
-                    </a>
+                      Top 10
+                    </button>
                     <button
                       onClick={() => handleAction(() => setShowFileImportConfirm(true))}
                       disabled={isRunning}

@@ -9,7 +9,8 @@ import { getTopMatches } from "@/utils/storage";
 import { HelpModal } from "@/components/HelpModal";
 import { TabAnimation } from '@/components/TabAnimation';
 import { ShareModal } from '@/components/ShareModal';
-import { AdsterraAd } from '@/components/AdsterraAd';
+import { Top10Modal } from '@/components/Top10Modal';
+import { ResponsiveAd } from '@/components/ResponsiveAd';
 import { StartStopFAB } from '@/components/StartStopFAB';
 import { MobileMenu } from '@/components/MobileMenu';
 import { VAULT_URL } from '@/utils/constants';
@@ -18,6 +19,7 @@ export default function Home() {
   const [showInfo, setShowInfo] = useState(false);
   const [showCommands, setShowCommands] = useState(false);
   const [showShare, setShowShare] = useState(false);
+  const [showTop10, setShowTop10] = useState(false);
   const [showResetConfirm, setShowResetConfirm] = useState(false);
   const [showFileImportConfirm, setShowFileImportConfirm] = useState(false);
   const [showExportConfirm, setShowExportConfirm] = useState(false);
@@ -199,9 +201,13 @@ export default function Home() {
         setShowInfo(false);
         setShowCommands(false);
         setShowShare(false);
+        setShowTop10(false);
         break;
       case 'h':
         setShowInfo(prev => !prev);
+        break;
+      case 'l':
+        setShowTop10(prev => !prev);
         break;
       case 'c':
         if (walletInfo) {
@@ -220,6 +226,7 @@ export default function Home() {
     setShowInfo,
     setShowCommands,
     setShowShare,
+    setShowTop10,
     runtime,
     attempts,
     setRuntime,
@@ -255,15 +262,15 @@ export default function Home() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-steam-bg text-steam-text p-3 sm:p-4 pb-12 md:pb-10">
+    <div className="h-dvh overflow-hidden bg-steam-bg text-steam-text p-3 sm:p-4 pb-12 md:pb-10 flex flex-col">
       <TabAnimation runtime={runtime} isRunning={isRunning} />
       <HelpModal show={showInfo} onClose={() => setShowInfo(false)} />
-      {/* Top banner - mobile/tablet only */}
-      <div className="lg:hidden mb-3 flex justify-center min-h-[50px]">
-        <AdsterraAd className="w-full max-w-[728px] min-h-[50px]" />
-      </div>
+      {/* Header ads - responsive: 320x50 on mobile, 728x90 on tablet/desktop */}
+      <header className="mb-2 shrink-0">
+        <ResponsiveAd />
+      </header>
 
-      <main className="flex flex-col items-center justify-center min-h-[calc(100vh-10rem)] max-w-2xl mx-auto pt-8 sm:pt-16">
+      <main className="flex flex-col items-center justify-center flex-1 min-h-0 overflow-hidden max-w-2xl mx-auto w-full pt-2 sm:pt-4">
         <MainContent
           walletInfo={walletInfo}
           attempts={attempts}
@@ -275,15 +282,11 @@ export default function Home() {
         />
       </main>
 
-      {/* Bottom ad - mobile/tablet only (replaces footer on mobile) */}
-      <div className="md:hidden fixed bottom-0 left-0 right-0 z-10 flex justify-center bg-steam-bg/90 backdrop-blur-md py-2 min-h-[50px]">
-        <AdsterraAd className="w-full max-w-[728px] min-h-[50px]" />
-      </div>
-
       <TerminalFooter
         setShowCommands={setShowCommands}
         setShowInfo={setShowInfo}
         setShowShare={setShowShare}
+        setShowTop10={setShowTop10}
         showResetConfirm={showResetConfirm}
         showFileImportConfirm={showFileImportConfirm}
         showFileExportConfirm={showExportConfirm}
@@ -297,6 +300,7 @@ export default function Home() {
         setShowCommands={setShowCommands}
         setShowInfo={setShowInfo}
         setShowShare={setShowShare}
+        setShowTop10={setShowTop10}
         setShowResetConfirm={setShowResetConfirm}
         setShowFileImportConfirm={setShowFileImportConfirm}
         setShowExportConfirm={setShowExportConfirm}
@@ -320,6 +324,10 @@ export default function Home() {
       <ShareModal 
         show={showShare}
         onClose={() => setShowShare(false)}
+      />
+      <Top10Modal
+        show={showTop10}
+        onClose={() => setShowTop10(false)}
       />
     </div>
   );
