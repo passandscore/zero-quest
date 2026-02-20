@@ -1,12 +1,12 @@
-import { useEffect, useState } from 'react';
+import { VAULT_URL } from '@/utils/constants';
 
 const TOP_MATCHES_KEY = 'zero_quest_top_matches';
 
 interface TerminalFooterProps {
   setShowCommands: (show: boolean) => void;
   setShowInfo: (show: boolean) => void;
+  setShowShare?: (show: boolean) => void;
   showResetConfirm?: boolean;
-  showVaultConfirm?: boolean;
   showFileImportConfirm?: boolean;
   showFileExportConfirm?: boolean;
   isRunning?: boolean;
@@ -19,8 +19,8 @@ interface TerminalFooterProps {
 export function TerminalFooter({ 
   setShowCommands,
   setShowInfo,
+  setShowShare,
   showResetConfirm,
-  showVaultConfirm,
   showFileImportConfirm,
   showFileExportConfirm,
   isRunning,
@@ -29,12 +29,6 @@ export function TerminalFooter({
   setAttempts,
   attemptsRef
 }: TerminalFooterProps) {
-  const [lastLogin, setLastLogin] = useState('');
-
-  useEffect(() => {
-    setLastLogin(new Date().toLocaleString());
-  }, []);
-
   const handleImport = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
@@ -69,39 +63,60 @@ export function TerminalFooter({
   };
 
   return (
-    <footer className="fixed bottom-0 left-0 right-0 bg-black border-t border-[#33ff00] h-8">
-      <div className="px-4">
-        <div className="py-1 flex items-center justify-between text-sm">
-          <div className="flex items-center gap-4">
-            {isRunning && (showResetConfirm || showVaultConfirm || showFileImportConfirm || showFileExportConfirm) ? (
-              <span className="text-[#33ff00]">{'>'} Program needs to be stopped to continue [SPACE]_</span>
-            ) : showResetConfirm ? (
-              <span className="text-[#33ff00]">{'>'} Reset all progress? [Y/N]_</span>
-            ) : showVaultConfirm ? (
-              <span className="text-[#33ff00]">{'>'} View vault balance on Etherscan? [Y/N]_</span>
-            ) : showFileImportConfirm ? (
-              <span className="text-[#33ff00]">{'>'} Import existing progress from file? [Y/N]_</span>
-            ) : showFileExportConfirm ? (
-              <span className="text-[#33ff00]">{'>'} Export existing progress to file? [Y/N]_</span>
-            ) : (
-              <>
-                <span className="text-[#f0f]">root@zeroquest</span>
-                <span className="text-[#33ff00]">:~$</span>
-                <div className="flex gap-4 text-[#33ff00]">
-                  <button onClick={() => setShowCommands(true)}>
-                    COMMANDS.txt [CTRL+/]
-                  </button>
-                  <button onClick={() => setShowInfo(true)}>
-                    HELP.txt [H]
-                  </button>
-                </div>
-              </>
+    <footer className="hidden md:flex fixed bottom-0 left-0 right-0 bg-steam-bg/80 backdrop-blur-md h-14 items-center justify-center z-10">
+      <div className="flex flex-wrap items-center justify-center gap-6 sm:gap-10 text-[11px] tracking-widest uppercase text-steam-text-muted">
+        {isRunning && (showResetConfirm || showFileImportConfirm || showFileExportConfirm) ? (
+          <span className="text-steam-text-muted">Stop the hunt first to continue</span>
+        ) : showResetConfirm ? (
+          <span className="text-steam-text">Reset all progress? (Y/N)</span>
+        ) : showFileImportConfirm ? (
+          <span className="text-steam-text">Import from file? (Y/N)</span>
+        ) : showFileExportConfirm ? (
+          <span className="text-steam-text">Export to file? (Y/N)</span>
+        ) : (
+          <>
+            <button
+              onClick={() => setShowCommands(true)}
+              className="text-steam-text-muted hover:text-steam-text transition-colors"
+              aria-label="Shortcuts"
+            >
+              Shortcuts
+            </button>
+            <button
+              onClick={() => setShowInfo(true)}
+              className="text-steam-text-muted hover:text-steam-text transition-colors"
+              aria-label="Help"
+            >
+              Help
+            </button>
+            {setShowShare && (
+              <button
+                onClick={() => setShowShare(true)}
+                className="text-steam-text-muted hover:text-steam-text transition-colors"
+                aria-label="Post to X"
+              >
+                Post to X
+              </button>
             )}
-          </div>
-          {!showResetConfirm && !showVaultConfirm && !showFileImportConfirm && !showFileExportConfirm && (
-            <span className="text-[#f0f]">Last login: {lastLogin}</span>
-          )}
-        </div>
+            <a
+              href={VAULT_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-steam-text-muted hover:text-steam-text transition-colors"
+              aria-label="View vault"
+            >
+              Vault
+            </a>
+            <a
+              href="/leaderboard"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-steam-text-muted hover:text-steam-text transition-colors"
+            >
+              Leaderboard
+            </a>
+          </>
+        )}
       </div>
       {showFileImportConfirm && (
         <input

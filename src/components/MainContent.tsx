@@ -1,16 +1,19 @@
 "use client";
 
 import { WalletInfo } from "@/types";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { getTopMatches } from "@/utils/storage";
-import { CONFIG } from "@/config/index";
 import { CommandsTable } from "@/components/CommandsTable";
-import { formatRuntime } from '@/utils/formatRuntime';
+import { formatRuntime } from "@/utils/formatRuntime";
+import { SessionSummary } from "@/components/SessionSummary";
+import { MilestoneToast } from "@/components/MilestoneToast";
+import { useZeroAddressBalance } from "@/hooks/useZeroAddressBalance";
+import { VAULT_URL } from "@/utils/constants";
+
+const MILESTONES = [10, 25, 50];
 
 interface MainContentProps {
   walletInfo: WalletInfo | null;
-  copyToClipboard: (text: string, id: string) => void;
-  copyingId: string | null;
   attempts: number;
   isRunning: boolean;
   hasWon: boolean;
@@ -19,82 +22,38 @@ interface MainContentProps {
   runtime: number;
 }
 
-export function MainContent({ 
-  walletInfo, 
-  copyToClipboard, 
-  copyingId, 
-  attempts, 
-  isRunning, 
-  hasWon, 
+export function MainContent({
+  walletInfo,
+  attempts,
+  isRunning,
+  hasWon,
   showCommands,
   setShowCommands,
-  runtime
+  runtime,
 }: MainContentProps) {
-  const [topMatches, setTopMatches] = useState<WalletInfo[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [typedText, setTypedText] = useState('');
   const [hasStarted, setHasStarted] = useState(false);
-  const fullText = '> INITIALIZING ZERO ADDRESS HACK_';
-  const [recentAddresses, setRecentAddresses] = useState<Set<string>>(new Set());
+  const [showSessionSummary, setShowSessionSummary] = useState(false);
+  const [showMilestone, setShowMilestone] = useState<number | null>(null);
+  const [bestMatch, setBestMatch] = useState(0);
+  const prevIsRunningRef = useRef(false);
+  const milestonesHitRef = useRef<Set<number>>(new Set());
+  const { balance: zeroBalance, isLoading: balanceLoading } = useZeroAddressBalance();
 
   useEffect(() => {
-    // Initial load from localStorage
-    const newMatches = getTopMatches();
-    if (Array.isArray(newMatches)) {
-      setTopMatches(newMatches);
-      // If we have a walletInfo, check if it's in the matches
-      if (walletInfo) {
-        const isNewMatch = !newMatches.find(m => m.address === walletInfo.address);
-        if (isNewMatch) {
-          setRecentAddresses(prev => new Set(prev).add(walletInfo.address));
-        }
-      }
+    const matches = getTopMatches();
+    const b = matches[0]?.zeroMatchPercentage ?? 0;
+    setBestMatch(b);
+    for (const m of MILESTONES) {
+      if (b >= m) milestonesHitRef.current.add(m);
     }
-    setIsLoading(false);
-  }, []); // Empty dependency array means this runs once on mount
-
-  // Keep the existing effect for updates
-  useEffect(() => {
-    const newMatches = getTopMatches();
-    if (walletInfo && Array.isArray(newMatches)) {
-      // Check if this wallet is a new top match
-      const isNewTopMatch = newMatches.some(match => 
-        match.address === walletInfo.address && 
-        match.matchRuntime === walletInfo.matchRuntime && 
-        match.matchAttempts === walletInfo.matchAttempts
-      );
-      
-      if (isNewTopMatch) {
-        setRecentAddresses(prev => new Set(prev).add(walletInfo.address));
-        // Remove from recent addresses after animation
-        setTimeout(() => {
-          setRecentAddresses(prev => {
-            const next = new Set(prev);
-            next.delete(walletInfo.address);
-            return next;
-          });
-        }, CONFIG.NEW_ENTRY_DELAY_MS); 
-      }
-    }
-    setTopMatches(Array.isArray(newMatches) ? newMatches : []);
   }, [walletInfo]);
 
   useEffect(() => {
-    let timeout: NodeJS.Timeout;
-    let charIndex = 0;
-
-    const typeText = () => {
-      if (charIndex <= fullText.length) {
-        setTypedText(fullText.slice(0, charIndex));
-        charIndex++;
-        timeout = setTimeout(typeText, CONFIG.TYPING_SPEED_MS);
-      } else {
-        setTimeout(() => setIsLoading(false), CONFIG.INITIAL_LOADING_MS);
-      }
-    };
-
-    typeText();
-    return () => clearTimeout(timeout);
+    const interval = setInterval(() => {
+      const matches = getTopMatches();
+      setBestMatch(matches[0]?.zeroMatchPercentage ?? 0);
+    }, 2000);
+    return () => clearInterval(interval);
   }, []);
 
   useEffect(() => {
@@ -103,150 +62,85 @@ export function MainContent({
     }
   }, [isRunning]);
 
-  // useEffect(() => {
-  //   const handleKeyDown = (event: KeyboardEvent) => {
-  //     if (event.ctrlKey && event.key === 'r') {
-  //       event.preventDefault();
-  //       reset();
-  //     }
-  //   };
+  useEffect(() => {
+    if (prevIsRunningRef.current && !isRunning && hasStarted) {
+      setShowSessionSummary(true);
+      const t = setTimeout(() => setShowSessionSummary(false), 4000);
+      prevIsRunningRef.current = isRunning;
+      return () => clearTimeout(t);
+    }
+    prevIsRunningRef.current = isRunning;
+  }, [isRunning, hasStarted]);
 
-  //   window.addEventListener('keydown', handleKeyDown);
-  //   return () => {
-  //     window.removeEventListener('keydown', handleKeyDown);
-  //   };
-  // }, [reset]);
+  useEffect(() => {
+    for (const m of MILESTONES) {
+      if (bestMatch >= m && !milestonesHitRef.current.has(m)) {
+        milestonesHitRef.current.add(m);
+        setShowMilestone(m);
+        const t = setTimeout(() => setShowMilestone(null), 2500);
+        return () => clearTimeout(t);
+      }
+    }
+  }, [bestMatch]);
 
-  // Helper function for consistent number formatting
   const formatNumber = (num: number) => {
     return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
   };
 
-  if (isLoading) {
-    return (
-      <div className="text-center w-full mb-8">
-        <h1 className="relative font-mono text-6xl mb-4">
-          <div className="glitch-container">
-            <div className="text-[#33ff00] glitch-text" data-text="ZERO_QUEST">
-              ZERO_QUEST
-            </div>
-          </div>
-        </h1>
-        <p className="text-sm text-[#33ff00] drop-shadow-[0_0_3px_rgba(51,255,0,0.3)]">
-          {typedText}
-        </p>
-        <p className="text-sm text-[#33ff00] drop-shadow-[0_0_3px_rgba(51,255,0,0.3)]/50 mt-4 animate-pulse">
-          {'>'} LOADING_
-        </p>
-      </div>
-    );
-  }
-
   return (
     <>
-      <CommandsTable 
-        show={showCommands} 
-        onClose={() => setShowCommands(false)} 
+      <CommandsTable show={showCommands} onClose={() => setShowCommands(false)} />
+      <SessionSummary
+        show={showSessionSummary}
+        runtime={runtime}
+        attempts={attempts}
+        bestMatch={bestMatch}
       />
-      
-      <div className="text-center w-full mb-4">
-        <h1 className="relative font-mono text-6xl mb-4">
-          <div className="glitch-container">
-            <div className="text-[#33ff00] glitch-text" data-text="ZERO_QUEST">
-              ZERO_QUEST
-            </div>
-          </div>
+      <MilestoneToast
+        show={showMilestone !== null}
+        percentage={showMilestone ?? 0}
+      />
+
+      <div className="text-center w-full mb-12 sm:mb-16">
+        <h1 className="text-3xl sm:text-5xl font-normal tracking-tight text-steam-text mb-8">
+          Zero Quest
         </h1>
-        <p className="text-base text-[#33ff00] drop-shadow-[0_0_3px_rgba(51,255,0,0.3)]">
-          {hasWon ? 
-            '> MISSION ACCOMPLISHED! 🎉' : 
-            '> INITIALIZING ZERO ADDRESS HACK_'
-          }
-        </p>
-        <p className="text-base text-[#33ff00] drop-shadow-[0_0_3px_rgba(51,255,0,0.3)]/50 mt-1">
-          {'>'} ATTEMPTS: {formatNumber(attempts)}_{isRunning ? ' [RUNNING]' : ''}
-        </p>
-        <p className="text-base text-[#33ff00] drop-shadow-[0_0_3px_rgba(51,255,0,0.3)]/50 mt-1">
-          {'>'} RUNTIME: {formatRuntime(runtime)}_
-        </p>
-      </div>
-
-      <div className="grid grid-rows-[auto_1fr] gap-4 w-full">
-        {/* Terminal Output Panel */}
-        <div className="w-full p-2 bg-[#001100] border border-[#33ff00]/20 shadow-[inset_0_0_10px_rgba(51,255,0,0.1)] font-mono text-base">
-          <div className="flex flex-col gap-1">
-            {walletInfo && (
-              <>
-                <p className="text-[#33ff00]">
-                  {'>'} Generated: {walletInfo.address}
-                </p>
-                {/* <p className="text-[#33ff00]">
-                  {'>'} Match: {walletInfo.zeroMatchPercentage.toFixed(2)}%
-                </p> */}
-              </>
-            )}
-            <div className="text-[#33ff00]">
-              {'>'} STATUS: {isRunning ? 'RUNNING' : hasWon ? 'COMPLETED' : 'READY'}_
-            </div>
-          </div>
+        <div className="space-y-0.5 text-base text-steam-text-muted tracking-wide">
+          <p>{hasWon ? "Complete" : "Hunting the zero address"}</p>
+          <p className="min-h-[1.5em] tabular-nums">
+            <a
+              href={VAULT_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              className={`text-steam hover:opacity-90 transition-opacity inline-block transition-[filter] duration-300 ${
+                balanceLoading ? "blur-sm select-none" : ""
+              }`}
+            >
+              {zeroBalance ?? "— ETH"} locked
+            </a>
+          </p>
+          <p className="tabular-nums">
+            {formatNumber(attempts)} attempts — {formatRuntime(runtime)}
+          </p>
         </div>
-
-        {/* Top Matches Panel - only show after generation has started */}
-        {hasStarted && topMatches.length > 0 && (
-          <div className="w-full p-2 bg-[#001100] border border-[#33ff00]/20 shadow-[inset_0_0_10px_rgba(51,255,0,0.1)] font-mono">
-            <div className="text-[#33ff00] mb-2">
-              {'>'} cat TOP_MATCHES.log
+        {hasStarted && (
+          <div className="mt-8 w-full max-w-[280px] mx-auto">
+            <p className="text-xs text-steam-text-muted tracking-widest uppercase mb-2">
+              Best match
+            </p>
+            <div className="h-px bg-steam-border overflow-hidden">
+              <div
+                className="h-full bg-steam/40 transition-all duration-1000 ease-out"
+                style={{ width: `${Math.min(bestMatch, 100)}%` }}
+              />
             </div>
-            <table className="w-full border-collapse">
-              <thead>
-                <tr className="border-y border-[#33ff00]/20">
-                <th className="px-4 py-1 text-center text-[#33ff00] font-normal">KEY</th>
-                  <th className="px-4 py-1 text-left text-[#33ff00] font-normal">ADDRESS</th>
-                  <th className="px-4 py-1 text-right text-[#33ff00] font-normal">MATCH%</th>
-                  <th className="px-4 py-1 text-right text-[#33ff00] font-normal">RUNTIME</th>
-                  <th className="px-4 py-1 text-right text-[#33ff00] font-normal">ATTEMPT</th>
-                 
-                </tr>
-              </thead>
-              <tbody>
-                {topMatches.map((match, index) => (
-                  <tr key={match.address} className="border-t border-[#33ff00]/10">
-                   <td className="py-1 text-center">
-                      <button
-                        onClick={() => copyToClipboard(match.privateKey, match.address)}
-                        className={`${recentAddresses.has(match.address) ? 'text-[#ff00ff]' : 'text-[#33ff00]'} hover:text-[#33ff00] transition-colors duration-1000`}
-                      >
-                        {copyingId === match.address ? 'OK_' : `[${index}]`}
-                      </button>
-                    </td>
-                    <td className={`px-4 py-1 text-sm font-mono transition-colors duration-1000 ${
-                      recentAddresses.has(match.address) ? 'text-[#ff00ff]' : 'text-[#33ff00]'
-                    }`}>
-                      {match.address}
-                    </td>
-                    <td className={`px-4 py-1 text-sm text-right transition-colors duration-1000 ${
-                      recentAddresses.has(match.address) ? 'text-[#ff00ff]' : 'text-[#33ff00]'
-                    }`}>
-                      {match.zeroMatchPercentage.toFixed(3)}%
-                    </td>
-                    <td className={`px-4 py-1 text-sm text-right transition-colors duration-1000 ${
-                      recentAddresses.has(match.address) ? 'text-[#ff00ff]' : 'text-[#33ff00]'
-                    }`}>
-                      {formatRuntime(match.matchRuntime || 0)}
-                    </td>
-                    <td className={`px-4 py-1 text-sm text-right transition-colors duration-1000 ${
-                      recentAddresses.has(match.address) ? 'text-[#ff00ff]' : 'text-[#33ff00]'
-                    }`}>
-                      {match.matchAttempts?.toLocaleString() || 0}
-                    </td>
-                    
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+            <p className="mt-2 text-sm text-steam-text font-medium">
+              {bestMatch.toFixed(3)}%
+            </p>
           </div>
         )}
       </div>
+
     </>
   );
 }

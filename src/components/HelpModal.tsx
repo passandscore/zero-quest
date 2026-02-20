@@ -10,11 +10,9 @@ export function HelpModal({ show, onClose }: HelpModalProps) {
 
   return (
     <Modal isOpen={show} onClose={onClose}>
-      <div className="p-4 font-mono text-base">
-        <div className="text-[#33ff00] mb-4">
-          {'>'} cat HELP.txt
-        </div>
-        <div className="space-y-4 text-[#33ff00]">
+      <div className="p-8">
+        <h2 className="text-[11px] font-medium tracking-widest uppercase text-steam-text-muted mb-6">Help</h2>
+        <div className="space-y-6 text-steam-text text-sm leading-relaxed">
           <p>
             Welcome to Zero Quest - The Hunt for Ethereum&apos;s Zero Address
           </p>
@@ -40,10 +38,10 @@ export function HelpModal({ show, onClose }: HelpModalProps) {
           <div className="space-y-2">
             <p>HOW IT WORKS:</p>
             <ul className="pl-4 space-y-1">
-              <li>1. Press SPACE to start generating random private keys</li>
+              <li>1. Press SPACE (or tap GO on mobile) to start generating random private keys</li>
               <li>2. Each key generates an Ethereum address</li>
               <li>3. The program calculates how close each address is to the zero address</li>
-              <li>4. Top matches are saved for verification</li>
+              <li>4. Top matches are saved—view them on the Leaderboard page</li>
               <li>5. Use CTRL+V to check zero address balance (open etherscan)</li>
             </ul>
           </div>

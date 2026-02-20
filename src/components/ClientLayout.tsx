@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect } from 'react';
+import { Toaster } from 'sonner';
 
 interface ClientLayoutProps {
   children: React.ReactNode;
@@ -23,6 +24,12 @@ export function ClientLayout({ children, geistSans, geistMono, spaceGrotesk }: C
       suppressHydrationWarning
     >
       {children}
+      <Toaster
+        theme="dark"
+        toastOptions={{
+          style: { background: '#1a1a1a', border: '1px solid #2d2d2d', color: '#e5e5e5' },
+        }}
+      />
     </body>
   );
 } 

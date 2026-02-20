@@ -9,6 +9,9 @@ import { getTopMatches } from "@/utils/storage";
 import { HelpModal } from "@/components/HelpModal";
 import { TabAnimation } from '@/components/TabAnimation';
 import { ShareModal } from '@/components/ShareModal';
+import { AdsterraAd } from '@/components/AdsterraAd';
+import { StartStopFAB } from '@/components/StartStopFAB';
+import { MobileMenu } from '@/components/MobileMenu';
 import { VAULT_URL } from '@/utils/constants';
 
 export default function Home() {
@@ -16,7 +19,6 @@ export default function Home() {
   const [showCommands, setShowCommands] = useState(false);
   const [showShare, setShowShare] = useState(false);
   const [showResetConfirm, setShowResetConfirm] = useState(false);
-  const [showVaultConfirm, setShowVaultConfirm] = useState(false);
   const [showFileImportConfirm, setShowFileImportConfirm] = useState(false);
   const [showExportConfirm, setShowExportConfirm] = useState(false);
   
@@ -35,8 +37,30 @@ export default function Home() {
     attemptsRef,
   } = useWallet();
 
-  const { copyingId, copyToClipboard } = useCopyToClipboard();
-  
+  const { copyToClipboard } = useCopyToClipboard();
+
+  const doExport = useCallback(() => {
+    const matches = getTopMatches();
+    const globalState = {
+      runtime: runtimeRef.current,
+      attempts: attemptsRef.current,
+    };
+    localStorage.setItem(GLOBAL_STATE_KEY, JSON.stringify(globalState));
+    const exportData = { matches, globalState };
+    const file = new File(
+      [JSON.stringify(exportData, null, 2)],
+      `zero_quest_backup_${new Date().toISOString().split("T")[0]}.txt`,
+      { type: "application/plaintext" }
+    );
+    const url = URL.createObjectURL(file);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = file.name;
+    a.click();
+    URL.revokeObjectURL(url);
+    setShowExportConfirm(false);
+  }, [runtimeRef, attemptsRef]);
+
   const handleKeyPress = useCallback((event: KeyboardEvent) => {
     // Handle reset confirmation
     if (showResetConfirm) {
@@ -48,18 +72,6 @@ export default function Home() {
         stopRunning();
       }else if (event.key.toLowerCase() === 'n' || event.key === 'Escape') {
         setShowResetConfirm(false);
-      }
-      return;
-    }
-
-    // Handle vault confirmation
-    if (showVaultConfirm) {
-      event.preventDefault();
-      if (event.key.toLowerCase() === 'y') {
-        window.open(VAULT_URL, '_blank');
-        setShowVaultConfirm(false);
-      } else if (event.key.toLowerCase() === 'n' || event.key === 'Escape') {
-        setShowVaultConfirm(false);
       }
       return;
     }
@@ -122,35 +134,7 @@ export default function Home() {
     if (showExportConfirm) {
       event.preventDefault();
       if (event.key.toLowerCase() === 'y') {
-        const matches = getTopMatches();
-        
-        // Update global state only during export - use refs for most current values
-        const globalState = {
-          runtime: runtimeRef.current,  // Use ref instead of state
-          attempts: attemptsRef.current // Use ref instead of state
-        };
-
-        console.log("globalState", globalState);
-        localStorage.setItem(GLOBAL_STATE_KEY, JSON.stringify(globalState));
-        
-        const exportData = {
-          matches,
-          globalState
-        };
-        
-        const file = new File(
-          [JSON.stringify(exportData, null, 2)], 
-          `zero_quest_backup_${new Date().toISOString().split('T')[0]}.txt`, 
-          { type: 'application/plaintext' }
-        );
-        
-        const url = URL.createObjectURL(file);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = file.name;
-        a.click();
-        URL.revokeObjectURL(url);
-        setShowExportConfirm(false);
+        doExport();
       } else if (event.key.toLowerCase() === 'n' || event.key === 'Escape') {
         setShowExportConfirm(false);
       }
@@ -183,7 +167,7 @@ export default function Home() {
           return;
         case 'v':
           event.preventDefault();
-          setShowVaultConfirm(true);
+          window.open(VAULT_URL, '_blank');
           return;
       }
     }
@@ -227,7 +211,6 @@ export default function Home() {
     }
   }, [
     showResetConfirm,
-    showVaultConfirm,
     reset,
     isRunning,
     stopRunning,
@@ -241,7 +224,8 @@ export default function Home() {
     attempts,
     setRuntime,
     runtimeRef,
-    attemptsRef
+    attemptsRef,
+    doExport,
   ]);
 
   useEffect(() => {
@@ -271,38 +255,36 @@ export default function Home() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-black text-green-500 font-mono p-4">
+    <div className="min-h-screen bg-steam-bg text-steam-text p-3 sm:p-4 pb-12 md:pb-10">
       <TabAnimation runtime={runtime} isRunning={isRunning} />
       <HelpModal show={showInfo} onClose={() => setShowInfo(false)} />
-      <div className="grid grid-cols-[20%_1fr_20%] gap-4 h-[calc(100vh-theme(spacing.8))] -mt-4">
-        <div className="border-r border-[#33ff00] text-base">
-          {/* Ad Space 1 */}
-        </div>
+      {/* Top banner - mobile/tablet only */}
+      <div className="lg:hidden mb-3 flex justify-center min-h-[50px]">
+        <AdsterraAd className="w-full max-w-[728px] min-h-[50px]" />
+      </div>
 
-        <main className="flex flex-col gap-8 pt-4 text-base">
-          <MainContent 
-            walletInfo={walletInfo}
-            copyToClipboard={copyToClipboard}
-            copyingId={copyingId}
-            attempts={attempts}
-            isRunning={isRunning}
-            hasWon={hasWon}
-            showCommands={showCommands}
-            setShowCommands={setShowCommands}
-            runtime={runtime}
-          />
-        </main>
+      <main className="flex flex-col items-center justify-center min-h-[calc(100vh-10rem)] max-w-2xl mx-auto pt-8 sm:pt-16">
+        <MainContent
+          walletInfo={walletInfo}
+          attempts={attempts}
+          isRunning={isRunning}
+          hasWon={hasWon}
+          showCommands={showCommands}
+          setShowCommands={setShowCommands}
+          runtime={runtime}
+        />
+      </main>
 
-        <div className="border-l border-[#33ff00]">
-          {/* Ad Space 2 */}
-        </div>
+      {/* Bottom ad - mobile/tablet only (replaces footer on mobile) */}
+      <div className="md:hidden fixed bottom-0 left-0 right-0 z-10 flex justify-center bg-steam-bg/90 backdrop-blur-md py-2 min-h-[50px]">
+        <AdsterraAd className="w-full max-w-[728px] min-h-[50px]" />
       </div>
 
       <TerminalFooter
         setShowCommands={setShowCommands}
         setShowInfo={setShowInfo}
+        setShowShare={setShowShare}
         showResetConfirm={showResetConfirm}
-        showVaultConfirm={showVaultConfirm}
         showFileImportConfirm={showFileImportConfirm}
         showFileExportConfirm={showExportConfirm}
         isRunning={isRunning}
@@ -310,6 +292,30 @@ export default function Home() {
         runtimeRef={runtimeRef}
         setAttempts={setAttempts}
         attemptsRef={attemptsRef}
+      />
+      <MobileMenu
+        setShowCommands={setShowCommands}
+        setShowInfo={setShowInfo}
+        setShowShare={setShowShare}
+        setShowResetConfirm={setShowResetConfirm}
+        setShowFileImportConfirm={setShowFileImportConfirm}
+        setShowExportConfirm={setShowExportConfirm}
+        showResetConfirm={showResetConfirm}
+        showFileImportConfirm={showFileImportConfirm}
+        showFileExportConfirm={showExportConfirm}
+        isRunning={isRunning}
+        setRuntime={setRuntime}
+        runtimeRef={runtimeRef}
+        setAttempts={setAttempts}
+        attemptsRef={attemptsRef}
+        reset={reset}
+        onExportConfirmYes={doExport}
+      />
+      <StartStopFAB
+        isRunning={isRunning}
+        hasWon={hasWon}
+        onStart={startRunning}
+        onStop={stopRunning}
       />
       <ShareModal 
         show={showShare}

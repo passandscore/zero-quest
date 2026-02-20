@@ -9,10 +9,35 @@ export default {
     "./src/app/**/*.{js,ts,jsx,tsx,mdx}",
   ],
   theme: {
+    container: {
+      center: true,
+      padding: {
+        DEFAULT: '1rem',
+        sm: '1.5rem',
+        lg: '2rem',
+        xl: '2.5rem',
+      },
+      screens: {
+        sm: '640px',
+        md: '768px',
+        lg: '1024px',
+        xl: '1280px',
+      },
+    },
     extend: {
       colors: {
         background: "var(--background)",
         foreground: "var(--foreground)",
+        steam: {
+          DEFAULT: "#a8a29e",
+          muted: "#78716c",
+          bg: "#050505",
+          panel: "#0c0c0c",
+          border: "#1a1a1a",
+          "border-light": "#262626",
+          text: "#fafafa",
+          "text-muted": "#a1a1aa",
+        },
       },
       fontFamily: {
         sans: ["var(--font-geist-sans)"],
@@ -40,8 +65,8 @@ export default {
           '50%': { opacity: '0' }
         },
         pulse: {
-          '0%, 100%': { opacity: '1', textShadow: '0 0 15px rgba(51,255,0,0.8), 0 0 30px rgba(51,255,0,0.6)' },
-          '50%': { opacity: '.8', textShadow: '0 0 10px rgba(51,255,0,0.4), 0 0 20px rgba(51,255,0,0.3)' }
+          '0%, 100%': { opacity: '1', textShadow: '0 0 15px rgba(139,115,85,0.5)' },
+          '50%': { opacity: '.8', textShadow: '0 0 10px rgba(139,115,85,0.3)' }
         },
         'flicker-fast': {
           '0%, 100%': { opacity: '1' },
@@ -82,11 +107,11 @@ export default {
         'new-row': {
           '0%': { color: '#ffffff' },
           '90%': { color: '#ffffff' },
-          '100%': { color: '#33ff00' }
+          '100%': { color: '#8b7355' }
         },
         'new-entry': {
-          '0%, 80%': { color: '#f0f' },
-          '81%, 100%': { color: '#33ff00' }
+          '0%, 80%': { color: '#737373' },
+          '81%, 100%': { color: '#8b7355' }
         }
       },
       animation: {
@@ -108,7 +133,7 @@ export default {
         'new-entry': `new-entry ${CONFIG.NEW_ENTRY_DELAY_MS}s steps(1) forwards`
       },
       backgroundImage: {
-        'scanlines': 'repeating-linear-gradient(0deg, rgba(51,255,0,0.1), rgba(51,255,0,0.1) 1px, transparent 1px, transparent 2px)'
+        'scanlines': 'repeating-linear-gradient(0deg, rgba(115,115,115,0.06), rgba(115,115,115,0.06) 1px, transparent 1px, transparent 2px)'
       },
       backgroundSize: {
         'scanlines': '100% 4px',
